@@ -1,12 +1,11 @@
 tasks:
   - init: |
-      # Install and set Java 21 without interactive prompts
+      # Install and set Java 21
       curl -s "https://get.sdkman.io" | bash
       source "$HOME/.sdkman/bin/sdkman-init.sh"
-      export SDKMAN_CLI_ACCEPT_LICENSES=true # Automatically accept SDKMAN prompts
-      sdk install java 21.0.1-tem            # Install Java 21
-      sdk use java 21.0.1-tem                # Set Java 21 as active version
-      java -version                          # Confirm the Java version
+      sdk install java 21.0.1-tem # Installs Java 21 
+      sdk use java 21.0.1-tem     # Sets Java 21 as the active version
+      java -version               # Prints the Java version to confirm
       mvn install -P quick-build
     command: |
       curl https://gist.githubusercontent.com/timja/fe73f0a0f98afe4d9356e7ce6752d95b/raw/98ad71080e91ed75824ec410ff905419e3788065/init.sh | bash
