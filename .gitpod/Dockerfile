@@ -1,11 +1,14 @@
 FROM gitpod/workspace-full:latest
 
 USER gitpod
+
+# Install Java 21.0.4-tem
 RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && \
     sdk install java 21.0.4-tem && \
     sdk default java 21.0.4-tem"
 
-RUN bash -c 'VERSION="14.8.0" && \
+# Install Node.js v22.12.0
+RUN bash -c 'VERSION="22.12.0" && \
     source $HOME/.nvm/nvm.sh && nvm install $VERSION && \
     nvm use $VERSION && nvm alias default $VERSION'
 
