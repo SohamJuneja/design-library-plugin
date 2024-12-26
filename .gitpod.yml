@@ -1,6 +1,5 @@
 tasks:
   - init: |
-      echo "sdkman_auto_answer=true" > $HOME/.sdkman/etc/config
       sdk install java 21.0.1-tem
       sdk use java 21.0.1-tem
       mvn install -P quick-build
