@@ -1,6 +1,7 @@
 tasks:
   - init: |
       curl -s "https://get.sdkman.io" | bash
+      source "$HOME/.sdkman/bin/sdkman-init.sh"
       echo "sdkman_auto_answer=true" > $HOME/.sdkman/etc/config
       sdk install java 21.0.4-tem
       sdk use java 21.0.4-tem
