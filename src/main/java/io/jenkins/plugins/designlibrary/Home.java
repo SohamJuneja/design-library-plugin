@@ -3,10 +3,14 @@ package io.jenkins.plugins.designlibrary;
 import hudson.Extension;
 import hudson.PluginWrapper;
 import hudson.model.RootAction;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 
 /**
  * Entry point to all the UI samples.
@@ -49,6 +53,53 @@ public class Home implements RootAction {
             String urlName = ui.getUrlName();
             if (urlName != null && urlName.equals(name)) {
                 return ui;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Serves LLM-friendly content as plain text markdown.
+     *
+     * <ul>
+     *   <li>{@code llms.txt} - index of all components with links to individual pages</li>
+     *   <li>{@code llms-all.txt} - all component documentation in a single file</li>
+     *   <li>{@code {component}.md} - documentation for a single component</li>
+     * </ul>
+     */
+    public void doDynamic(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
+        String restOfPath = req.getRestOfPath();
+        if (restOfPath.startsWith("/")) {
+            restOfPath = restOfPath.substring(1);
+        }
+
+        String content = resolveLlmContent(restOfPath, req);
+        if (content != null) {
+            rsp.setContentType("text/plain;charset=UTF-8");
+            try (PrintWriter w = rsp.getWriter()) {
+                w.write(content);
+            }
+            return;
+        }
+
+        rsp.sendError(404);
+    }
+
+    private String resolveLlmContent(String name, StaplerRequest2 req) {
+        String baseUrl = req.getContextPath() + "/" + getUrlName() + "/";
+
+        if ("llms.txt".equals(name)) {
+            return LlmContent.generateIndex(baseUrl);
+        }
+        if ("llms-all.txt".equals(name)) {
+            return LlmContent.generateAll(req.getServletContext());
+        }
+        if (name.endsWith(".md")) {
+            String componentName = name.substring(0, name.length() - 3);
+            for (UISample sample : getAll()) {
+                if (sample.getUrlName().equals(componentName)) {
+                    return LlmContent.generateComponentMarkdown(sample, req.getServletContext());
+                }
             }
         }
         return null;
