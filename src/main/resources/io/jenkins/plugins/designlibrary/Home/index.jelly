@@ -61,7 +61,7 @@
               <s:card icon="symbol-sparkles-outline plugin-ionicons-api"
                       title="${%use-with-ai}"
                       description="${%use-with-ai-description}"
-                      href="${rootURL}/${it.urlName}/llms.txt"
+                      href="llms.txt"
                       tag="${%New}" />
             </div>
           </s:section>
