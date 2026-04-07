@@ -28,8 +28,7 @@ class LlmContentTest {
             assertThat(content).startsWith("# Jenkins Design Library");
             assertThat(content).contains("## Components");
             assertThat(content).contains("## Patterns");
-            assertThat(content).contains("buttons.md");
-            assertThat(content).contains("cards.md");
+            assertThat(content).contains("Buttons");
         }
     }
 
@@ -43,27 +42,6 @@ class LlmContentTest {
             assertThat(content).contains("# Buttons");
             assertThat(content).contains("# Cards");
             assertThat(content).contains("# Colors");
-        }
-    }
-
-    @Test
-    void componentMarkdownContainsDescription() throws Exception {
-        try (var webClient = jenkins.createWebClient()) {
-            Page page = webClient.getPage(jenkins.getURL() + "design-library/buttons.md");
-            String content = page.getWebResponse().getContentAsString();
-
-            assertThat(content).startsWith("# Buttons");
-            assertThat(content).contains("**Category:** Components");
-            assertThat(content).contains("Triggers specific actions");
-        }
-    }
-
-    @Test
-    void unknownMdReturns404() throws Exception {
-        try (var webClient = jenkins.createWebClient()) {
-            webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-            Page page = webClient.getPage(jenkins.getURL() + "design-library/nonexistent.md");
-            assertThat(page.getWebResponse().getStatusCode()).isEqualTo(404);
         }
     }
 

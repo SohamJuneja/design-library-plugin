@@ -19,7 +19,7 @@ class LlmContent {
 
     private LlmContent() {}
 
-    static String generateIndex(String baseUrl) {
+    static String generateIndex() {
         StringBuilder sb = new StringBuilder();
         sb.append("# Jenkins Design Library\n\n");
         sb.append("> A reference library of UI components and patterns ");
@@ -28,8 +28,7 @@ class LlmContent {
         for (Map.Entry<Category, List<UISample>> entry : UISample.getGrouped().entrySet()) {
             sb.append("## ").append(entry.getKey().getDisplayName()).append('\n');
             for (UISample sample : entry.getValue()) {
-                sb.append("- [").append(sample.getDisplayName()).append("](");
-                sb.append(baseUrl).append(sample.getUrlName()).append(".md): ");
+                sb.append("- ").append(sample.getDisplayName()).append(": ");
                 sb.append(sample.getDescription()).append('\n');
             }
             sb.append('\n');
@@ -55,7 +54,7 @@ class LlmContent {
         return sb.toString();
     }
 
-    static String generateComponentMarkdown(UISample sample, ServletContext context) {
+    private static String generateComponentMarkdown(UISample sample, ServletContext context) {
         StringBuilder sb = new StringBuilder();
         sb.append("# ").append(sample.getDisplayName()).append("\n\n");
         sb.append("> ").append(sample.getDescription()).append("\n\n");
