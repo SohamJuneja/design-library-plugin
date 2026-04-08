@@ -19,7 +19,7 @@ class LlmContent {
 
     private LlmContent() {}
 
-    static String generateIndex() {
+    static String generateIndex(String baseUrl) {
         StringBuilder sb = new StringBuilder();
         sb.append("# Jenkins Design Library\n\n");
         sb.append("> A reference library of UI components and patterns ");
@@ -28,7 +28,8 @@ class LlmContent {
         for (Map.Entry<Category, List<UISample>> entry : UISample.getGrouped().entrySet()) {
             sb.append("## ").append(entry.getKey().getDisplayName()).append('\n');
             for (UISample sample : entry.getValue()) {
-                sb.append("- ").append(sample.getDisplayName()).append(": ");
+                sb.append("- [").append(sample.getDisplayName()).append("](");
+                sb.append(baseUrl).append(sample.getUrlName()).append(".md): ");
                 sb.append(sample.getDescription()).append('\n');
             }
             sb.append('\n');
@@ -54,7 +55,7 @@ class LlmContent {
         return sb.toString();
     }
 
-    private static String generateComponentMarkdown(UISample sample, ServletContext context) {
+    static String generateComponentMarkdown(UISample sample, ServletContext context) {
         StringBuilder sb = new StringBuilder();
         sb.append("# ").append(sample.getDisplayName()).append("\n\n");
         sb.append("> ").append(sample.getDescription()).append("\n\n");
@@ -71,12 +72,11 @@ class LlmContent {
         List<String> snippetFiles = findSnippetReferences(sample);
 
         for (String filename : snippetFiles) {
-            String path = "/" + componentName + "/" + filename;
-            String content = readResource(context, path);
+            String content = readResource(sample, componentName, filename, context);
 
             if (content != null && !content.isBlank()) {
                 String label = filename.replaceFirst("\\.[^.]+$", "");
-                String language = filename.endsWith(".js") ? "javascript" : "xml";
+                String language = inferLanguage(filename);
                 sb.append("### ").append(label).append("\n\n");
                 sb.append("```").append(language).append('\n');
                 sb.append(content.strip()).append('\n');
@@ -110,14 +110,47 @@ class LlmContent {
         return files;
     }
 
-    private static String readResource(ServletContext context, String path) {
-        try (InputStream is = context.getResourceAsStream(path)) {
-            if (is == null) {
-                return null;
+    /**
+     * Reads a snippet file, checking the webapp directory first then the classpath.
+     * Snippet files live in two locations depending on the component:
+     * webapp (e.g. /Buttons/default.jelly) or classpath (e.g. .../Dialogs/form.jelly).
+     */
+    private static String readResource(UISample sample, String componentName, String filename, ServletContext context) {
+        // Try webapp first (src/main/webapp/{Component}/{file})
+        if (context != null) {
+            String webappPath = "/" + componentName + "/" + filename;
+            try (InputStream is = context.getResourceAsStream(webappPath)) {
+                if (is != null) {
+                    return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                }
+            } catch (IOException e) {
+                // fall through to classpath
             }
-            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            return null;
         }
+
+        // Try classpath (src/main/resources/.../{Component}/{file})
+        String classpathPath = sample.getClass().getName().replace('.', '/') + "/" + filename;
+        try (InputStream is = sample.getClass().getClassLoader().getResourceAsStream(classpathPath)) {
+            if (is != null) {
+                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            // skip
+        }
+
+        return null;
+    }
+
+    private static String inferLanguage(String filename) {
+        if (filename.endsWith(".js")) {
+            return "javascript";
+        }
+        if (filename.endsWith(".java")) {
+            return "java";
+        }
+        if (filename.endsWith(".properties")) {
+            return "properties";
+        }
+        return "xml";
     }
 }

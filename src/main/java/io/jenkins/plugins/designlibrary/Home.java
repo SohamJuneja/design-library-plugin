@@ -62,8 +62,9 @@ public class Home implements RootAction {
      * Serves LLM-friendly content as plain text markdown.
      *
      * <ul>
-     *   <li>{@code llms.txt} - index of all components</li>
+     *   <li>{@code llms.txt} - index of all components with links to individual pages</li>
      *   <li>{@code llms-all.txt} - all component documentation in a single file</li>
+     *   <li>{@code {component}.md} - documentation for a single component</li>
      * </ul>
      */
     public void doDynamic(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
@@ -85,11 +86,21 @@ public class Home implements RootAction {
     }
 
     private String resolveLlmContent(String name, StaplerRequest2 req) {
+        String baseUrl = req.getContextPath() + "/" + getUrlName() + "/";
+
         if ("llms.txt".equals(name)) {
-            return LlmContent.generateIndex();
+            return LlmContent.generateIndex(baseUrl);
         }
         if ("llms-all.txt".equals(name)) {
             return LlmContent.generateAll(req.getServletContext());
+        }
+        if (name.endsWith(".md")) {
+            String componentName = name.substring(0, name.length() - 3);
+            for (UISample sample : getAll()) {
+                if (sample.getUrlName().equals(componentName)) {
+                    return LlmContent.generateComponentMarkdown(sample, req.getServletContext());
+                }
+            }
         }
         return null;
     }
