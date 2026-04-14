@@ -34,7 +34,7 @@ class LlmContentTest {
     }
 
     @Test
-    void llmsAllTxtContainsAllComponents() throws Exception {
+    void llmsAllTxtContainsCodeSnippets() throws Exception {
         try (var webClient = jenkins.createWebClient()) {
             Page page = webClient.getPage(jenkins.getURL() + "design-library/llms-all.txt");
             String content = page.getWebResponse().getContentAsString();
@@ -43,19 +43,37 @@ class LlmContentTest {
             assertThat(content).contains("# Buttons");
             assertThat(content).contains("# Cards");
             assertThat(content).contains("# Colors");
+            assertThat(content).contains("jenkins-button");   // Buttons/default.jelly
+            assertThat(content).contains("l:card");           // Cards/card.jelly
+            assertThat(content).contains("jenkins-alert");    // Banner/info.jelly
+            assertThat(content).contains("f:checkbox");       // Checkboxes/checkbox.jelly
+            assertThat(content).contains("f:toggleSwitch");   // ToggleSwitch/default.jelly
             assertThat(content).contains("```");
         }
     }
 
     @Test
-    void componentMarkdownContainsDescription() throws Exception {
+    void componentMarkdownContainsCodeSnippets() throws Exception {
         try (var webClient = jenkins.createWebClient()) {
             Page page = webClient.getPage(jenkins.getURL() + "design-library/buttons.md");
             String content = page.getWebResponse().getContentAsString();
 
             assertThat(content).startsWith("# Buttons");
             assertThat(content).contains("**Category:** Components");
-            assertThat(content).contains("Triggers specific actions");
+            assertThat(content).contains("jenkins-button");
+            assertThat(content).contains("```");
+        }
+    }
+
+    @Test
+    void cardsMarkdownContainsCodeSnippets() throws Exception {
+        try (var webClient = jenkins.createWebClient()) {
+            Page page = webClient.getPage(jenkins.getURL() + "design-library/cards.md");
+            String content = page.getWebResponse().getContentAsString();
+
+            assertThat(content).startsWith("# Cards");
+            assertThat(content).contains("l:card");
+            assertThat(content).contains("```");
         }
     }
 

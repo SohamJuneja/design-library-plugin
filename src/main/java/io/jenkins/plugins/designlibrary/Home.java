@@ -91,18 +91,26 @@ public class Home implements RootAction {
         if ("llms.txt".equals(name)) {
             return LlmContent.generateIndex(baseUrl);
         }
+
+        java.net.URL resourceBase = getPluginResourceBase();
+
         if ("llms-all.txt".equals(name)) {
-            return LlmContent.generateAll(req.getServletContext());
+            return LlmContent.generateAll(resourceBase);
         }
         if (name.endsWith(".md")) {
             String componentName = name.substring(0, name.length() - 3);
             for (UISample sample : getAll()) {
-                if (sample.getUrlName().equals(componentName)) {
-                    return LlmContent.generateComponentMarkdown(sample, req.getServletContext());
+                if (componentName.equals(sample.getUrlName())) {
+                    return LlmContent.generateComponentMarkdown(sample, resourceBase);
                 }
             }
         }
         return null;
+    }
+
+    private java.net.URL getPluginResourceBase() {
+        PluginWrapper plugin = Jenkins.get().getPluginManager().getPlugin("design-library");
+        return plugin != null ? plugin.baseResourceURL : null;
     }
 
     public String getPluginVersion() {

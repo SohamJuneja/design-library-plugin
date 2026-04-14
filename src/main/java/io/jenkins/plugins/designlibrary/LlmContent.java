@@ -1,8 +1,8 @@
 package io.jenkins.plugins.designlibrary;
 
-import jakarta.servlet.ServletContext;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ class LlmContent {
         return sb.toString();
     }
 
-    static String generateAll(ServletContext context) {
+    static String generateAll(URL pluginResourceBase) {
         StringBuilder sb = new StringBuilder();
         sb.append("# Jenkins Design Library\n\n");
         sb.append("> A reference library of UI components and patterns ");
@@ -47,7 +47,7 @@ class LlmContent {
         for (Map.Entry<Category, List<UISample>> entry : UISample.getGrouped().entrySet()) {
             sb.append("## ").append(entry.getKey().getDisplayName()).append("\n\n");
             for (UISample sample : entry.getValue()) {
-                sb.append(generateComponentMarkdown(sample, context));
+                sb.append(generateComponentMarkdown(sample, pluginResourceBase));
                 sb.append("\n---\n\n");
             }
         }
@@ -55,7 +55,7 @@ class LlmContent {
         return sb.toString();
     }
 
-    static String generateComponentMarkdown(UISample sample, ServletContext context) {
+    static String generateComponentMarkdown(UISample sample, URL pluginResourceBase) {
         StringBuilder sb = new StringBuilder();
         sb.append("# ").append(sample.getDisplayName()).append("\n\n");
         sb.append("> ").append(sample.getDescription()).append("\n\n");
@@ -72,7 +72,7 @@ class LlmContent {
         List<String> snippetFiles = findSnippetReferences(sample);
 
         for (String filename : snippetFiles) {
-            String content = readResource(sample, componentName, filename, context);
+            String content = readResource(sample, componentName, filename, pluginResourceBase);
 
             if (content != null && !content.isBlank()) {
                 String label = filename.replaceFirst("\\.[^.]+$", "");
@@ -110,25 +110,27 @@ class LlmContent {
         return files;
     }
 
-    /**
-     * Reads a snippet file, checking the webapp directory first then the classpath.
-     * Snippet files live in two locations depending on the component:
-     * webapp (e.g. /Buttons/default.jelly) or classpath (e.g. .../Dialogs/form.jelly).
-     */
-    private static String readResource(UISample sample, String componentName, String filename, ServletContext context) {
-        // Try webapp first (src/main/webapp/{Component}/{file})
-        if (context != null) {
-            String webappPath = "/" + componentName + "/" + filename;
-            try (InputStream is = context.getResourceAsStream(webappPath)) {
-                if (is != null) {
-                    return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                }
+    private static String readResource(UISample sample, String componentName, String filename, URL pluginResourceBase) {
+        if (pluginResourceBase != null) {
+            String base = pluginResourceBase.toExternalForm();
+            if (!base.endsWith("/")) {
+                base += "/";
+            }
+            try (InputStream is = new URL(base + componentName + "/" + filename).openStream()) {
+                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
             } catch (IOException e) {
-                // fall through to classpath
+                // fall through
             }
         }
 
-        // Try classpath (src/main/resources/.../{Component}/{file})
+        try (InputStream is = sample.getClass().getClassLoader().getResourceAsStream(componentName + "/" + filename)) {
+            if (is != null) {
+                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            // fall through
+        }
+
         String classpathPath = sample.getClass().getName().replace('.', '/') + "/" + filename;
         try (InputStream is = sample.getClass().getClassLoader().getResourceAsStream(classpathPath)) {
             if (is != null) {
