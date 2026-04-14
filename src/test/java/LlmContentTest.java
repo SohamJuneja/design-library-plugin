@@ -43,11 +43,11 @@ class LlmContentTest {
             assertThat(content).contains("# Buttons");
             assertThat(content).contains("# Cards");
             assertThat(content).contains("# Colors");
-            assertThat(content).contains("jenkins-button");   // Buttons/default.jelly
-            assertThat(content).contains("l:card");           // Cards/card.jelly
-            assertThat(content).contains("jenkins-alert");    // Banner/info.jelly
-            assertThat(content).contains("f:checkbox");       // Checkboxes/checkbox.jelly
-            assertThat(content).contains("f:toggleSwitch");   // ToggleSwitch/default.jelly
+            assertThat(content).contains("jenkins-button"); // Buttons/default.jelly
+            assertThat(content).contains("l:card"); // Cards/card.jelly
+            assertThat(content).contains("jenkins-alert"); // Banner/info.jelly
+            assertThat(content).contains("f:checkbox"); // Checkboxes/checkbox.jelly
+            assertThat(content).contains("f:toggleSwitch"); // ToggleSwitch/default.jelly
             assertThat(content).contains("```");
         }
     }
