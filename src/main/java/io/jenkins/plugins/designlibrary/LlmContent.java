@@ -171,7 +171,9 @@ class LlmContent {
         Properties props = new Properties();
         try (InputStream is = sample.getClass().getClassLoader().getResourceAsStream(propsPath)) {
             if (is != null) {
-                props.load(new InputStreamReader(is, StandardCharsets.UTF_8));
+                try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                    props.load(reader);
+                }
             }
         } catch (IOException e) {
             // skip
