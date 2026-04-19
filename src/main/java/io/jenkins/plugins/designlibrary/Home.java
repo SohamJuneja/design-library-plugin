@@ -92,7 +92,7 @@ public class Home implements RootAction {
             return LlmContent.generateIndex(baseUrl);
         }
 
-        java.net.URL resourceBase = getPluginResourceBase();
+        URL resourceBase = getPluginResourceBase();
 
         if ("llms-all.txt".equals(name)) {
             return LlmContent.generateAll(resourceBase);
@@ -108,7 +108,7 @@ public class Home implements RootAction {
         return null;
     }
 
-    private java.net.URL getPluginResourceBase() {
+    private URL getPluginResourceBase() {
         PluginWrapper plugin = Jenkins.get().getPluginManager().getPlugin("design-library");
         return plugin != null ? plugin.baseResourceURL : null;
     }
