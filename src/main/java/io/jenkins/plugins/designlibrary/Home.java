@@ -5,6 +5,7 @@ import hudson.PluginWrapper;
 import hudson.model.RootAction;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
