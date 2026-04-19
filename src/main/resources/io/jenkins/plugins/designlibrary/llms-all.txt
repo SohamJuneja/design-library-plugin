@@ -1,0 +1,2042 @@
+# Jenkins Design Library
+
+> A reference library of UI components and patterns for building Jenkins plugin interfaces.
+
+## Components
+
+# App bars
+
+> Frames your page and contains your most important actions.
+
+**Category:** Components
+
+## Top app bar
+
+Top app bar provides the page heading as well as important actions.
+
+### topAppBar
+
+```xml
+<l:main-panel>
+  <l:app-bar title="Page title" subtitle="3">
+    <button class="jenkins-button jenkins-button--primary">
+      <l:icon src="symbol-add" />
+      Primary
+    </button>
+    <button class="jenkins-button">Secondary</button>
+    <button class="jenkins-button">Secondary</button>
+    <t:help href="https://www.jenkins.io" />
+  </l:app-bar>
+  ...
+</l:main-panel>
+```
+
+### Dos and Don'ts
+
+| Do | Don't |
+|---|---|
+| Use an app bar instead of a `h1` element as app bars have unique properties. | Avoid showing more than four actions at once, relegate less used actions to an overflow menu. |
+| Place your most important actions in the app bar. | Avoid showing a count subtitle if it could relate to multiple things on your page. |
+| Show a count subtitle if it explicitly relates to your page. |  |
+
+## Bottom app bar
+
+Bottom app bars are great for forms, they provide important actions for the current page, such as "Save" and "Apply". Bottom app bars stick to the bottom of the screen so that they're always present.
+
+### bottomAppBar
+
+```xml
+<div>
+  <f:bottomButtonBar>
+    <button class="jenkins-button jenkins-button--primary">
+      Save
+    </button>
+    <button class="jenkins-button">Apply</button>
+  </f:bottomButtonBar>
+</div>
+```
+
+
+---
+
+# Banner
+
+> Banners are a handy way to display small snippets of text and actions.
+
+**Category:** Components
+
+## Info
+
+### info
+
+```xml
+<div class="jenkins-alert jenkins-alert-info">
+  Hello world
+</div>
+```
+
+## Warning
+
+### warning
+
+```xml
+<div class="jenkins-alert jenkins-alert-warning">
+  Hello world
+</div>
+```
+
+## Danger
+
+### danger
+
+```xml
+<div class="jenkins-alert jenkins-alert-danger">
+  Hello world
+</div>
+```
+
+## Success
+
+### success
+
+```xml
+<div class="jenkins-alert jenkins-alert-success">
+  Hello world
+</div>
+```
+
+> Since 2.459. The css classes have the jenkins- prefix. Older versions should use the non prefixed form which interfere with classes defined in bootstrap.
+
+
+---
+
+# Buttons
+
+> Triggers specific actions with a click or tap.
+
+**Category:** Components
+
+## Default
+
+### default
+
+```xml
+<button class="jenkins-button">Default</button>
+```
+
+## Primary
+
+Only use one primary button per page.
+
+### primary
+
+```xml
+<button class="jenkins-button jenkins-button--primary">Primary</button>
+```
+
+## Tertiary
+
+Tertiary buttons should be used for buttons which have minimal interaction or for those where a background creates too much visual clutter.
+
+### tertiary
+
+```xml
+<button class="jenkins-button jenkins-button--tertiary">Tertiary</button>
+```
+
+## Symbol
+
+Buttons can include symbols, and they'll be automatically sized to fit correctly.
+
+### symbolButton
+
+```xml
+<button class="jenkins-button">
+  <l:icon src="symbol-add" /> With symbol
+</button>
+```
+
+## Modifiers
+
+Buttons work with color modifier classes, allowing for easy customization.
+
+### build
+
+```xml
+<button class="jenkins-button jenkins-button--primary jenkins-!-build-color">
+  <l:icon src="symbol-play" />
+  Build
+</button>
+```
+
+### destructive
+
+```xml
+<button class="jenkins-button jenkins-!-destructive-color">
+  <l:icon src="symbol-trash" />
+  Delete
+</button>
+```
+
+Destructive buttons should be used when something will be deleted or not easily undone. Generally these should have a confirmation dialog or page.
+
+## Copy
+
+A small button to copy text into the user's clipboard.
+
+### copyButton
+
+```xml
+<l:copyButton text="A shoulder of lemon fields" />
+```
+
+## Help
+
+The button should always be in the top right of a page, last in the row of components, or in an overflow menu.
+
+### helpButton
+
+```xml
+<t:help href="https://www.jenkins.io" tooltip="${%Additional information on buttons}" />
+```
+
+
+---
+
+# Cards
+
+> Use cards to surface related information and controls to users.
+
+**Category:** Components
+**Since:** 2.479.1
+
+### Dos and Don'ts
+
+| Do | Don't |
+|---|---|
+| Keep your card glanceable, let the user expand your card for more information. | Don't add unnecessary visual elements that clutter the card. |
+| Make your cards scalable to different screen sizes. | Don't have too many actions on one card. |
+| Do use hierarchy and symbols to add visual context. |  |
+
+## Creating a card
+
+### card
+
+```xml
+<l:card title="Card title">
+  Card content
+</l:card>
+```
+
+Cards are designed to automatically expand and fill the available space within their container, making them flexible and easy to use in different layouts. Since Jenkins doesn't currently have a built-in grid system, you'll need to create your own if you want to arrange multiple cards in a grid-like structure. You can do this by utilizing Flexbox or Grid to manage the positioning and spacing of your cards within the parent container.
+
+## Setting actions on a card
+
+### actions
+
+```xml
+<j:set var="controls">
+  <a class="jenkins-card__reveal" href="#" tooltip="Custom action">
+    <l:icon src="symbol-sparkles-outline plugin-ionicons-api" />
+  </a>
+</j:set>
+<l:card title="Card with actions" expandable="#" controls="${controls}">
+  Card content
+</l:card>
+```
+
+Actions are a great way to show key controls right on your card. These controls are tied to the card's purpose and are placed in the top-right corner, so they're easy to spot at a glance. The `expandable` property always shows up last, and when you click it, it takes you to your card's specific page for quick access to more details.
+
+
+---
+
+# Checkboxes
+
+> Allows users to select one or more items from a list.
+
+**Category:** Components
+
+### checkbox
+
+```xml
+<f:checkbox title="${%Example}" field="hello" />
+```
+
+Example parameters:
+
+- id (optional) - Sets an id for the input, useful for UI testing, one will be generated for you otherwise. Avoid using in repeatable elements as you will end up with duplicate IDs.
+- default (optional) - Can be used to set the default to `true`, not generally recommended as this won't affect configuration as code users, only use if you want to set a new default when people configure the plugin.
+- field - The field of the descriptor to bind to, must be of type `boolean`.
+- title - The label for the checkbox.
+
+There are more parameters available, but they are generally not needed and should be avoided.
+
+
+---
+
+# Dialogs
+
+> Displays overlay windows for additional information or user input without navigating away.
+
+**Category:** Components
+**Since:** 2.426.1
+
+## Alerts
+
+### alert
+
+```javascript
+function showAlert() {
+  dialog.alert("Example alert", {
+    message: "I'm an example of an error alert.",
+    type: "destructive",
+  });
+}
+```
+
+Replaces the browser built-in alert(message). Contrary to the built-in the code will not wait until the user has closed the alert but as long as the alert is shown the user can't do anything else. Clicking outside the dialog will have no effect, the button must be used to close it. Alerts are usually used to show error messages.
+
+## Prompts
+
+### prompt
+
+```javascript
+function showPrompt() {
+  dialog
+    .prompt("Welcome to the Dialog demo", {
+      message: "How should I call you?",
+      minWidth: "450px",
+      maxWidth: "600px",
+    })
+    .then(
+      (name) => {
+        dialog.alert("Hello " + name);
+      },
+      () => {
+        dialog.alert("Hello Stranger");
+      },
+    );
+}
+```
+
+Replaces the browser built-in prompt(message) to query a single value from a user. This returns a promise that allows the script to react when the user has entered the value or aborted. Clicking outside the dialog will have no effect, the buttons must be used to close it. Default `minWidth: 400px`
+
+## Confirmations
+
+### confirm
+
+```javascript
+function showConfirm() {
+  dialog
+    .confirm("Do it", {
+      message: "Are you sure?",
+      cancelText: dialog.translations.no,
+    })
+    .then(
+      () => {
+        dialog.alert("You've done it.");
+      },
+      () => {
+        dialog.alert(null, { message: "OK, I'm not gonna do it." });
+      },
+    );
+}
+```
+
+Replaces the browser built-in confirm(message) to make a user confirm an action. This returns a promise that allows the script to react when the user has confirmed or denied. Clicking outside the dialog will have no effect, the buttons must be used to close it. By default, the OK button gets the text `Yes`
+
+## Modals
+
+### modal
+
+```javascript
+function showModal() {
+  const template = document.querySelector("#demo-template");
+  const title = template.getAttribute("data-title");
+  const content = template.content.firstElementChild.cloneNode(true);
+  dialog.modal(content, {
+    maxWidth: "550px",
+    title: title,
+  });
+}
+```
+
+### modal
+
+```xml
+<template id="demo-template" data-title="${%Modal}">
+  <div>
+    <h2 class="jenkins-dialog__subtitle">${%Behaviour}</h2>
+    ${%Click on the "X" in the top right or outside to close me}.
+    <h2 class="jenkins-dialog__subtitle jenkins-!-margin-top-3">${%You can include icons}</h2>
+    <l:icon src="symbol-chatbox-outline plugin-ionicons-api" class="icon-sm"/> ${%Dialogs are cool}.
+  </div>
+</template>
+```
+
+Presents a popup to the user with arbitrary information. A modal has no buttons at the bottom. Instead, a close button is added to the upper right corner (can also be hidden). The dialog is closed when clicking outside of it.
+
+## Forms
+
+### form
+
+```javascript
+function showForm() {
+  const formTemplate = document.getElementById("demo-form");
+  const form = formTemplate.firstElementChild.cloneNode(true);
+  const toggle = document.getElementById("formsubmit");
+  const title = formTemplate.dataset.title;
+  dialog
+    .form(form, {
+      title: title,
+      okText: "Order",
+      submitButton: toggle.checked,
+    })
+    .then((formData) => {
+      let title = "Order status";
+      let message =
+        "Thank you " +
+        formData.get("name") +
+        ".\n We received your order. Here are the details:" +
+        "\n\nQuantity: " +
+        formData.get("quantity") +
+        "\nFlavor: " +
+        formData.get("_.flavor");
+      dialog.alert(title, { message: message });
+    });
+}
+```
+
+### form
+
+```xml
+<div id="demo-form" class="jenkins-hidden" data-title="${%Order your ice cream}">
+  <f:form action="form" method="post">
+    <f:entry title="${%Name}">
+      <f:textbox name="name"/>
+    </f:entry>
+    <f:entry title="${%Quantity}">
+      <f:number name="quantity" min="1" max="9" default="1"/>
+    </f:entry>
+    <f:entry title="${%Choose flavor}">
+      <f:select field="flavor"/>
+    </f:entry>
+  </f:form>
+</div>
+```
+
+Shows a form inside a dialog. For proper functionality, do not wrap the template inside a `template` block as scripts that are included by forms are not loaded immediately in that case. Do not include buttons to submit, apply or cancel the form. Those are added automatically. Adding buttons to validate things or testing connections is fine. You can either handle the form directly or submit the form. By default, the OK button gets the text `Submit` which is rather generic. Try to use something, that fits the context e.g. `Add`. Default `minWidth: 600px`
+
+## Customizing the appearance and behaviour
+
+All dialogs take a second optional parameter with options that allow to change certain aspects.
+
+- `message`: Adds a message to the dialog
+- `okText`: Adjust the text of the OK button, the default depends on the type of dialog
+- `cancelText`: Adjust the text of the Cancel button, defaults to `Cancel`
+- `type`: Change the color of the `OK` button. Allowed values: `destructive`
+- `minWidth`: Set the minimum width of the dialog, the default depends on the type of dialog
+- `maxWidth`: Set the maximum width of the dialog, defaults to `475px`
+- `hideCloseButton`: Hides the close button in modal dialogs, defaults to `false`
+- `allowEmpty`: When set to `false` the `OK` button will be disabled in the prompt dialog as long as the input field is empty or contains only whitespace, defaults to `false`
+- `submitButton`: Change the behaviour of the submit button in a form dialog. When `true` the form will be submitted to the `action` attribute of the form. When `false`, a `FormData` object is passed to the `resolve` method of the `Promise`. Defaults to `true`
+
+## OK Button texts
+
+There are some predefined button texts available that come with translation. You can refer to them with e.g. `dialog.translations.apply`. You can choose from the following texts:
+
+- `ok`: OK
+- `cancel`: Cancel
+- `yes`: Yes
+- `no`: No
+- `add`: Add
+- `save`: Save
+- `apply`: Apply
+- `submit`: Submit
+
+
+---
+
+# Empty States
+
+> For when there is no data, no configuration or no plugins installed that support the required feature an empty state can be provided instead.
+
+**Category:** Components
+
+### empty-states
+
+```xml
+<l:notice title="No plugins installed" icon="symbol-plugins" />
+```
+
+Supported Parameters:
+
+- title - The message displayed in the notice box
+- icon - The icon shown with the message
+
+## Child content inside notices
+
+You can also include child content within the notice as a call to action.
+
+### empty-states-child-content
+
+```xml
+<l:notice title="No jobs created" icon="symbol-weather-icon-health-00to19">
+    <button 
+        type="button"
+        class="jenkins-button jenkins-button--secondary">
+        Create your first job
+    </button>
+</l:notice>
+```
+
+
+---
+
+# File
+
+> Enables file upload functionality.
+
+**Category:** Components
+
+### file
+
+```xml
+<f:file field="hello" />
+```
+
+Example parameters:
+
+- field - The field of the descriptor to bind to, see examples in Jenkins core normally it will end up being a subclass of `FileItem`.
+- clazz - Additional CSS class(es) to add.
+
+## Additional parameters
+
+You can also use any other attribute, it will be passed through to the input element.
+
+### file-accept
+
+```xml
+<f:file field="hello" accept=".hpi,.jpi" clazz="extra-class" />
+```
+
+
+---
+
+# Inputs
+
+> Captures user input through various text or data entry formats.
+
+**Category:** Components
+
+## Textbox
+
+### example
+
+```xml
+<f:entry title="Example" field="example">
+  <f:textbox placeholder="Enter an example"/>
+</f:entry>
+```
+
+By adding `clazz="required"` you can mark a textbox as being mandatory.
+
+## Search
+
+### search
+
+```xml
+<l:search-bar />
+```
+
+## Number fields
+
+### number
+
+```xml
+<f:entry title="Number" field="count">
+  <f:number min="1" max="99" default="5"/>
+</f:entry>
+```
+
+## Password fields
+
+### password
+
+```xml
+<f:entry title="Password" field="password" description="The password to access the system.">
+  <f:password />
+</f:entry>
+```
+
+## Code editor
+
+CodeMirror can be used to turn an ordinary text area into a syntax-highlighted content-assistive text area.
+
+### codemirror
+
+```xml
+<f:textarea codemirror-mode="shell" codemirror-config='"lineNumbers": true' />
+```
+
+There is support for languages like `groovy`, `xml`, `yaml`, `css`, `javascript`, `shell`, `python`, `perl` and many more. Use the attribute `codemirror-config` to specify additional key/value pairs in the JSON format (except the start and end bracket) to be passed as CodeMirror option object.
+
+
+---
+
+# Menu
+
+> Menus allow you to group similar controls under one roof. They're an effective way to de-clutter your page whilst offering users the actions they need.
+
+**Category:** Components
+**Since:** 2.452.1
+
+### default
+
+```xml
+<l:overflowButton>
+  <dd:item icon="symbol-star-outline plugin-ionicons-api"
+           text="${%Action 1}" />
+  <dd:item icon="symbol-star-outline plugin-ionicons-api"
+           text="${%Action 2}" />
+  <dd:separator />
+  <dd:header text="${%Heading}" />
+  <dd:item icon="symbol-star-outline plugin-ionicons-api"
+           text="${%Action 3}" />
+  <dd:item icon="symbol-star-outline plugin-ionicons-api"
+           text="${%Action 4}" />
+  <dd:separator />
+  <dd:submenu icon="symbol-star-outline plugin-ionicons-api" text="${%Submenu}">
+    <dd:item icon="symbol-star-outline plugin-ionicons-api"
+             text="${%Subaction 1}" />
+    <dd:item icon="symbol-star-outline plugin-ionicons-api"
+             text="${%Subaction 2}" />
+  </dd:submenu>
+  <dd:separator />
+  <dd:custom>
+    <l:confirmationLink class="jenkins-dropdown__item jenkins-!-destructive-color"
+                        href="doDelete"
+                        message="Delete"
+                        post="true">
+      <div class="jenkins-dropdown__item__icon jenkins-!-destructive-color">
+        <l:icon src="symbol-trash-outline plugin-ionicons-api" />
+      </div>
+      ${%Delete}
+    </l:confirmationLink>
+  </dd:custom>
+</l:overflowButton>
+```
+
+### Dos and Don'ts
+
+| Do | Don't |
+|---|---|
+| Use overflow buttons to avoid overcomplicating your page. | Avoid moving important, commonly used actions to menus. |
+| Use overflow buttons to offer quick access to a subpage's actions. | Don't overcomplicate your menus, avoid using more than one level of submenus. |
+| Use color to emphasise differences between actions. |  |
+
+
+---
+
+# Notifications
+
+> Jenkins can display in-page notifications with a simple-to-use JavaScript API.
+
+**Category:** Components
+
+## Default
+
+### showDefault
+
+```javascript
+notificationBar.show('Default')
+```
+
+## Success
+
+### showSuccess
+
+```javascript
+notificationBar.show('Success', notificationBar.SUCCESS)
+```
+
+## Warning
+
+### showWarning
+
+```javascript
+notificationBar.show('Warning', notificationBar.WARNING)
+```
+
+## Error
+
+### showError
+
+```javascript
+notificationBar.show('Error', notificationBar.ERROR)
+```
+
+## Closing notifications
+
+Notifications will hide after a few seconds, but you can programmatically hide them with:
+
+### hideNotification
+
+```javascript
+notificationBar.hide()
+```
+
+
+---
+
+# Progress
+
+> Indicates the completion status of a task or operation.
+
+**Category:** Components
+
+## Spinner
+
+Use the spinner component to display progress for short operations, such as loading a page or card.
+
+### spinner
+
+```xml
+<l:spinner />
+```
+
+### spinnerLabel
+
+```xml
+<l:spinner text="I am a label" />
+```
+
+## Progress animation
+
+Use the progress animation component for indeterminate operations, such as displaying logs.
+
+### progressAnimation
+
+```xml
+<l:progressAnimation />
+```
+
+## Progress bar
+
+Use the progress bar component to display progress for long operations, such as building a job.
+
+### progressBar
+
+```xml
+<t:progressBar pos="50" />
+```
+
+### progressBarIndeterminate
+
+```xml
+<t:progressBar pos="-1" />
+```
+
+## Progressive rendering
+
+Shows how to do a complex operation on the server while displaying its progress, before displaying to the user.
+
+### progressiveRendering
+
+```xml
+<form method="POST" action=".">
+  <f:entry title="Enter a big number">
+    <f:number name="number" value="${number}" />
+  </f:entry>
+  <button class="jenkins-button">
+    Find factors
+  </button>
+</form>
+<j:if test="${number != null}">
+<st:adjunct includes="io.jenkins.plugins.<your-plugin>.<your-path>"/>
+<p>Factors of ${number}:</p>
+<l:progressiveRendering handler="${it.factor(number)}" callback="display" tooltip="Factoring…"/>
+<ul id="factors"/>
+</j:if>
+```
+
+### display
+
+```javascript
+function display(r) {
+  for (var i = 0; r.newfactors.length > i; i++) {
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode(r.newfactors[i]));
+    $(factors).appendChild(li);
+  }
+}
+```
+
+
+---
+
+# Radios
+
+> Allows users to select a single option from a group.
+
+**Category:** Components
+
+## Simple radios
+
+### index
+
+```xml
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+  <f:descriptorRadioList
+    descriptors="${it.radios}"
+    title="Test title"
+    instance="${instance}"
+    varName="realm"
+  />
+</j:jelly>
+```
+
+### Sample
+
+```java
+public class Sample {
+    public ListUISample getRadios() {
+        return new ArrayList(Jenkins.get().getExtensionList(UISample.class))
+                .subList(0, 4);
+    }
+}
+```
+
+## Boolean radio
+
+### booleanRadio
+
+```xml
+<f:booleanRadio field="myField" />
+```
+
+
+---
+
+# Repeatable list
+
+> Displays lists with varying content types within the same container.
+
+**Category:** Components
+
+### Config
+
+```java
+public static final class Config extends AbstractDescribableImpl<Config> {
+
+  private final List<Entry> entries;
+
+  @DataBoundConstructor public Config(List<Entry> entries) {
+    this.entries = entries != null ? new ArrayList<Entry>(entries) : Collections.<Entry>emptyList();
+  }
+
+  public List<Entry> getEntries() {
+    return Collections.unmodifiableList(entries);
+  }
+
+  @Extension public static class DescriptorImpl extends Descriptor<Config> {}
+}
+```
+
+### config
+
+```xml
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+  <f:section title="Entries">
+    <f:entry field="entries">
+      <f:repeatableHeteroProperty hasHeader="true" addCaption="${%Add entry}" />
+    </f:entry>
+  </f:section>
+</j:jelly>
+```
+
+### Entry
+
+```java
+public static abstract class Entry extends AbstractDescribableImpl<Entry> {}
+```
+
+### ChoiceEntry
+
+```java
+public static final class ChoiceEntry extends Entry {
+
+  private final String choice;
+
+  @DataBoundConstructor public ChoiceEntry(String choice) {
+    this.choice = choice;
+  }
+
+  public String getChoice() {
+    return choice;
+  }
+
+  @Extension public static class DescriptorImpl extends Descriptor<Entry> {
+
+    @Override public String getDisplayName() {
+      return "Choice Entry";
+    }
+
+    public ListBoxModel doFillChoiceItems() {
+      return new ListBoxModel().add("good").add("bad").add("ugly");
+    }
+
+  }
+}
+```
+
+### SimpleEntry
+
+```java
+public static final class SimpleEntry extends Entry {
+
+  private final String text;
+
+  @DataBoundConstructor public SimpleEntry(String text) {
+    this.text = text;
+  }
+
+  public String getText() {
+    return text;
+  }
+
+  @Extension public static class DescriptorImpl extends Descriptor<Entry> {
+    @Override public String getDisplayName() {
+      return "Simple Entry";
+    }
+  }
+
+}
+```
+
+A flexible list of items, all derived from a shared base type. Users can add as many items as they need and configure each one independently. Each describable class needs to provide a `config.jelly`. The submission can be data-bound into `List<T>` where `T` is the common base type for the describable instances (`Entry` in the snippet above). See the documentation of repeatableHeteroProperty for a complete list of attributes and what they do. The example classes shown above are snippets from a parent class that implements the `Describable` interface. To use these classes, you must define them as inner classes within a parent class that also implements `Describable`.
+
+
+---
+
+# Select
+
+> Provides a dropdown for choosing one option from a predefined list.
+
+**Category:** Components
+
+## Simple select
+
+If you want a simpler `select` to be rendered you can use the `f:select` Jelly tag and create a `doFillFieldNameItems` method in the `descriptor`.
+
+### simple
+
+```xml
+<f:entry title="Fruits">
+  <f:select field="fruit" />
+</f:entry>
+```
+
+### Simple
+
+```java
+public ListBoxModel doFillFruitItems() {
+    return new ListBoxModel(
+        new ListBoxModel.Option("Apple"),
+        new ListBoxModel.Option("Banana")
+    );
+}
+```
+
+## Enum select
+
+With `f:enum` you can create a select that is based on an `enum` in Java.
+
+### enum
+
+```xml
+<f:entry title="Unit" field="unit">
+  <f:enum default="SECONDS">
+    ${it.description}
+  </f:enum>
+</f:entry>
+```
+
+### Enum
+
+```java
+public class UnitHolder {
+
+    private Unit unit;
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    @DataBoundSetter
+    public void setUnit(Unit unit) {
+        this.unit = unit
+    }
+
+    public enum Unit {
+        MILLISECONDS("Milliseconds"),
+        SECONDS("Seconds"),
+        MINUTES("Minutes"),
+        HOURS("Hours"),
+        DAYS("Days");
+
+        private final String description;
+
+        Unit(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+}
+```
+
+## Advanced select
+
+You can use `dropdownDescriptorSelector` to create a fully data-bound form and the option to include a config page for the `descriptor` by creating a file called `config.jelly`.
+
+### advanced
+
+```xml
+<f:dropdownDescriptorSelector field="fruit" title="Fruits" descriptors="${it.fruitDescriptors}" />
+```
+
+### Advanced
+
+```java
+public DescriptorExtensionList<Fruit, Descriptor<Fruit>> getFruitDescriptors() {
+    return Jenkins.get().getDescriptorList(Fruit.class);
+}
+
+public abstract static class Fruit implements ExtensionPoint, Describable<Fruit> {
+    protected String name;
+
+    protected Fruit(String name) {
+        this.name = name;
+    }
+
+    public Descriptor<Fruit> getDescriptor() {
+        return Jenkins.get().getDescriptor(getClass());
+    }
+}
+
+public static class FruitDescriptor extends Descriptor<Fruit> {}
+
+public static class Apple extends Fruit {
+    private final int seeds;
+
+    @DataBoundConstructor
+    public Apple(int seeds) {
+        super("Apple");
+        this.seeds = seeds;
+    }
+
+    public int getSeeds() {
+        return seeds;
+    }
+
+    @Extension
+    public static final class DescriptorImpl extends FruitDescriptor {}
+}
+
+public static class Banana extends Fruit {
+    private final boolean yellow;
+
+    @DataBoundConstructor
+    public Banana(boolean yellow) {
+        super("Banana");
+        this.yellow = yellow;
+    }
+
+    public boolean isYellow() {
+        return yellow;
+    }
+
+    @Extension
+    public static final class DescriptorImpl extends FruitDescriptor {}
+}
+```
+
+## Dynamic select
+
+Updates the contents of a "select" control dynamically based on selections of other controls.
+
+### dynamic-sample
+
+```xml
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+  <f:entry title="State" field="state">
+    <f:select/>
+  </f:entry>
+  <f:entry title="City" field="city">
+    <f:select/>
+  </f:entry>
+</j:jelly>
+```
+
+### DynamicSample
+
+```java
+public static final class DescriptorImpl extends UISampleDescriptor {
+    public ListBoxModel doFillStateItems() {
+        ListBoxModel m = new ListBoxModel();
+        for (String s : asList("A", "B", "C")) {
+            m.add(String.format("State %s", s), s);
+        }
+        return m;
+    }
+
+    public ListBoxModel doFillCityItems(@QueryParameter String state) {
+        ListBoxModel m = new ListBoxModel();
+        for (String s : asList("X", "Y", "Z")) {
+            m.add(String.format("City %s in %s", s, state), state + ':' + s);
+        }
+        return m;
+    }
+}
+```
+
+## Autocomplete
+
+Allows users to quickly browse a select by typing to filter the available choices. Start typing a U.S. state for results to appear.
+
+Using `combobox` forces the user to select an option from the available choices, it'll also display all choices on focus.
+
+### combobox
+
+```xml
+<f:entry title="U.S. State" field="state">
+  <f:combobox />
+</f:entry>
+```
+
+### Combobox
+
+```java
+public class Sample {
+    private static final String[] STATES = new String[]{
+            "Alabama",
+            "..."
+    };
+
+    public ComboBoxModel doFillStateItems() {
+        return new ComboBoxModel(STATES);
+    }
+}
+```
+
+Using `textbox` on the other hand allows the user to enter free text if they so desire.
+
+### textbox
+
+```xml
+<f:entry title="U.S. State" field="state">
+  <f:textbox />
+</f:entry>
+```
+
+### Textbox
+
+```java
+public class Sample {
+  public AutoCompletionCandidates doAutoCompleteState(@QueryParameter String value) {
+    AutoCompletionCandidates c = new AutoCompletionCandidates();
+    for (String state : STATES) {
+      if (state.toLowerCase().startsWith(value.toLowerCase())) {
+        c.add(state);
+      }
+    }
+    return c;
+  }
+}
+```
+
+
+---
+
+# Symbols
+
+> Jenkins Symbols are an extensive and consistent collection of icons for use in Jenkins and plugins.
+
+**Category:** Components
+
+Symbols are intended to be used everywhere a traditional icon would be used, such as in the sidebar, in buttons and in tables. Symbols are scalable, support different weights and adapt to the user's theme.
+
+### Dos and Don'ts
+
+| Do | Don't |
+|---|---|
+| Symbols should be used to help a user recognise what a task does at a glance. | Don't use custom symbols that aren't consistent with Jenkins. |
+| They should be recognisable and relevant, e.g. for locked resources. | Don't add symbols to headings, they just create visual clutter. |
+| Use a tooltip on the symbol if there isn't any accompanying text. |  |
+
+## Using Symbols
+
+Using symbols in your view is simple. Use the existing `icon` component and set the `src` value to the symbol you want, prefixed with `"symbol-"`.
+
+### symbol
+
+```xml
+<l:icon src="symbol-search" />
+```
+
+Symbols can also display tooltips:
+
+### symbol-tooltip
+
+```xml
+<l:icon src="symbol-jenkins" tooltip="Howdy" />
+```
+
+It's also possible to customize symbols with custom classes:
+
+### symbol-classes
+
+```xml
+<l:icon src="symbol-rss" class="spin" />
+```
+
+You can change the size of the symbol by using one of the sizing classes:
+
+### symbol-size
+
+```xml
+<l:icon src="symbol-cube" class="icon-sm" />
+<l:icon src="symbol-cube" class="icon-md" />
+<l:icon src="symbol-cube" class="icon-lg" />
+<l:icon src="symbol-cube" class="icon-xlg" />
+```
+
+You can use the build status symbols like so, append '-anime' to use the animated variant:
+
+### symbol-status
+
+```xml
+<l:icon src="symbol-status-blue" />
+<l:icon src="symbol-status-yellow" />
+<l:icon src="symbol-status-red" />
+<l:icon src="symbol-status-nobuilt" />
+<l:icon src="symbol-status-aborted" />
+<l:icon src="symbol-status-disabled" />
+```
+
+And you can use the weather health symbols like so:
+
+### symbol-weather
+
+```xml
+<l:icon src="symbol-weather-icon-health-00to19" />
+<l:icon src="symbol-weather-icon-health-20to39" />
+<l:icon src="symbol-weather-icon-health-40to59" />
+<l:icon src="symbol-weather-icon-health-60to79" />
+<l:icon src="symbol-weather-icon-health-80plus" />
+```
+
+[View the complete list of Jenkins Symbols on GitHub](https://github.com/jenkinsci/jenkins/tree/master/war/src/main/resources/images/symbols)
+
+## Add more symbols with the ionicons API plugin
+
+To use more symbols, add the `ionicons-api-plugin` to your project.
+
+[Click here for a sample how to add the API to your plugin](https://plugins.jenkins.io/ionicons-api/#dependencies)
+
+Reference the symbol with:
+
+### symbol-ionicons-reference
+
+```xml
+<l:icon src="symbol-symbolName-outline plugin-ionicons-api" />
+```
+
+[View the complete list of all symbols provided by the ionicons-api-plugin on ionic.io/ionicons](https://ionic.io/ionicons)
+
+## Custom Symbols
+
+Add your symbol to:
+
+### snippet1
+
+```javascript
+{plugin-root}/src/main/resources/images/symbols
+```
+
+Reference the symbol with:
+
+### symbol-plugin
+
+```xml
+<l:icon src="symbol-symbolName plugin-yourArtifactId" />
+```
+
+Make sure you replace the placeholder parameters:
+
+- symbolName - the file name of the symbol without the file extension (e.g. cloud)
+- yourArtifactId - the artifact ID of your plugin, or the one of the plugin you want to load the symbol from
+
+ArtifactId can be found in your `pom.xml` for Maven plugins or as `shortName` in `build.gradle(.kts)` for Gradle plugins.
+
+To make your symbol themeable, adjust the following properties:
+
+- stroke="currentColor"
+- fill="currentColor"
+
+You don't need to add both attributes, pick the one that matches your use case.
+
+
+---
+
+# Table
+
+> Displays structured data in rows and columns, with support for sorting and badges.
+
+**Category:** Components
+
+### index
+
+```xml
+<t:setIconSize/>
+<table class="jenkins-table sortable ${iconSize == '16x16' ? 'jenkins-table--small' : iconSize == '24x24' ? 'jenkins-table--medium' : ''}">
+<thead>
+  <th>
+    Name
+  </th>
+  <th class="jenkins-table__cell--tight">S</th>
+  <th>
+    Status
+  </th>
+  <th>
+    Reason
+  </th>
+</thead>
+<tbody>
+  <tr>
+    <td>
+      <a href="#" class="jenkins-table__link">Link 1</a>
+    </td>
+    <td class="jenkins-table__cell--tight jenkins-table__icon">
+      <div class="jenkins-table__cell__button-wrapper">
+        <l:icon src="symbol-status-blue"/>
+      </div>
+    </td>
+    <td>
+      Success
+      <a href="#" class="jenkins-table__link jenkins-table__badge model-link">#7</a>
+    </td>
+    <td>
+      No Errors
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="#" class="jenkins-table__link">Link 2</a>
+    </td>
+    <td class="jenkins-table__cell--tight jenkins-table__icon">
+      <div class="jenkins-table__cell__button-wrapper">
+        <l:icon src="symbol-status-red"/>
+      </div>
+    </td>
+    <td>
+      Failure
+    </td>
+    <td>
+      Can't compile
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="#" class="jenkins-table__link">Link 3</a>
+    </td>
+    <td class="jenkins-table__cell--tight jenkins-table__icon">
+      <div class="jenkins-table__cell__button-wrapper">
+        <l:icon src="symbol-status-yellow"/>
+      </div>
+    </td>
+    <td>
+      Unstable
+    </td>
+    <td>
+      Test Failed
+    </td>
+  </tr>
+</tbody>
+</table>
+<t:iconSize/>
+```
+
+
+---
+
+# Toggle switch
+
+> Enables users to switch between two states, such as on or off.
+
+**Category:** Components
+
+## Default
+
+### default
+
+```xml
+<f:toggleSwitch name="enabled" title="Hello world" />
+```
+
+## Inverted
+
+### inverted
+
+```xml
+<f:toggleSwitch name="enabled" title="Hello world" invertLabel="true" />
+```
+
+## Dynamic labels
+
+Toggle switches labels can update in real time to reflect their status by setting the `checkedTitle` attribute. Try clicking on the toggle switch below to see how this works.
+
+### dynamic
+
+```xml
+<f:toggleSwitch
+  name="enable"
+  title="${%Disabled}"
+  checkedTitle="${%Enabled}"
+  checked="true"
+  tooltip="${%Enable or disable the current project}"
+/>
+```
+
+
+---
+
+# Tooltips
+
+> Offers brief, contextual information when hovering over an element.
+
+**Category:** Components
+
+## Basic tooltip
+
+### tooltip
+
+```xml
+<button tooltip="I am a tooltip" class="jenkins-button jenkins-button--primary">
+  Hover over me
+</button>
+```
+
+## HTML and interactive content
+
+### html-tooltip
+
+```xml
+<j:set var="tooltip">
+  <img src="${imagesURL}/svgs/logo.svg" />
+</j:set>
+<button data-html-tooltip="${tooltip}" data-tooltip-interactive="true" class="jenkins-button jenkins-button--primary">
+  Hover over me
+</button>
+```
+
+You can use tooltips with Jenkins Symbols too, using either the `tooltip` or `htmlTooltip` attribute. Setting both will prioritise the `htmlTooltip`.
+
+### symbol-tooltip
+
+```xml
+<j:set var="tooltip">
+  <img src="${imagesURL}/svgs/logo.svg" />
+</j:set>
+<l:icon src="symbol-jenkins plugin-ionicons-api" htmlTooltip="${tooltip}" class="jdl-symbols__symbol" />
+```
+
+Make sure that text is sanitized before displaying it inside of `data-html-tooltip` as this can lead to XSS attacks. Escape or avoid using it on user-controlled data like agent display names or descriptions. See Preventing Cross-Site Scripting in Jelly views.
+
+
+---
+
+## Patterns
+
+# Colors
+
+> Defines the palette for consistent use of color.
+
+**Category:** Patterns
+
+### Dos and Don'ts
+
+| Do | Don't |
+|---|---|
+| Use color to draw attention to important parts of your interface. | Color shouldn't be the only way a piece of information is conveyed, use text or symbols along with it. |
+| Use colors provided by Jenkins as they will automatically adapt to the user's theme. |  |
+
+## Semantic
+
+| Name | Description | CSS Class | CSS Variable |
+|---|---|---|---|
+| Accent | Use for primary actions. | `jenkins-!-accent-color` | `var(--accent-color)` |
+| Text | Use for text. | `jenkins-!-text-color` | `var(--text-color)` |
+| Secondary text | Use for secondary text. | `jenkins-!-text-color-secondary` | `var(--text-color-secondary)` |
+| Success | Use for success states. | `jenkins-!-success-color` | `var(--success-color)` |
+| Warning | Use for warning states. | `jenkins-!-warning-color` | `var(--warning-color)` |
+| Error | Use for error states. | `jenkins-!-error-color` | `var(--error-color)` |
+| Build | Use for build kickoff. | `jenkins-!-build-color` | `var(--build-color)` |
+| Destructive | Use for destructive actions. | `jenkins-!-destructive-color` | `var(--destructive-color)` |
+
+## Palette
+
+| Name | CSS Class | CSS Variable |
+|---|---|---|
+| Light Red | `jenkins-!-color-light-red` | `var(--light-red)` |
+| Red | `jenkins-!-color-red` | `var(--red)` |
+| Dark Red | `jenkins-!-color-dark-red` | `var(--dark-red)` |
+| Light Orange | `jenkins-!-color-light-orange` | `var(--light-orange)` |
+| Orange | `jenkins-!-color-orange` | `var(--orange)` |
+| Dark Orange | `jenkins-!-color-dark-orange` | `var(--dark-orange)` |
+| Light Yellow | `jenkins-!-color-light-yellow` | `var(--light-yellow)` |
+| Yellow | `jenkins-!-color-yellow` | `var(--yellow)` |
+| Dark Yellow | `jenkins-!-color-dark-yellow` | `var(--dark-yellow)` |
+| Light Green | `jenkins-!-color-light-green` | `var(--light-green)` |
+| Green | `jenkins-!-color-green` | `var(--green)` |
+| Dark Green | `jenkins-!-color-dark-green` | `var(--dark-green)` |
+| Light Blue | `jenkins-!-color-light-blue` | `var(--light-blue)` |
+| Blue | `jenkins-!-color-blue` | `var(--blue)` |
+| Dark Blue | `jenkins-!-color-dark-blue` | `var(--dark-blue)` |
+| Light Cyan | `jenkins-!-color-light-cyan` | `var(--light-cyan)` |
+| Cyan | `jenkins-!-color-cyan` | `var(--cyan)` |
+| Dark Cyan | `jenkins-!-color-dark-cyan` | `var(--dark-cyan)` |
+| Light Teal | `jenkins-!-color-light-teal` | `var(--light-teal)` |
+| Teal | `jenkins-!-color-teal` | `var(--teal)` |
+| Dark Teal | `jenkins-!-color-dark-teal` | `var(--dark-teal)` |
+| Light Indigo | `jenkins-!-color-light-indigo` | `var(--light-indigo)` |
+| Indigo | `jenkins-!-color-indigo` | `var(--indigo)` |
+| Dark Indigo | `jenkins-!-color-dark-indigo` | `var(--dark-indigo)` |
+| Light Purple | `jenkins-!-color-light-purple` | `var(--light-purple)` |
+| Purple | `jenkins-!-color-purple` | `var(--purple)` |
+| Dark Purple | `jenkins-!-color-dark-purple` | `var(--dark-purple)` |
+| Light Pink | `jenkins-!-color-light-pink` | `var(--light-pink)` |
+| Pink | `jenkins-!-color-pink` | `var(--pink)` |
+| Dark Pink | `jenkins-!-color-dark-pink` | `var(--dark-pink)` |
+| Light Brown | `jenkins-!-color-light-brown` | `var(--light-brown)` |
+| Brown | `jenkins-!-color-brown` | `var(--brown)` |
+| Dark Brown | `jenkins-!-color-dark-brown` | `var(--dark-brown)` |
+
+
+---
+
+# JavaScript Proxy
+
+> Export arbitrary server-side Java object to JavaScript and invoke their methods from JavaScript.
+
+**Category:** Patterns
+
+In Jenkins, you can export arbitrary server-side Java object to JavaScript via a proxy, then invoke their methods from JavaScript. In this sample, we call a method on the server to increment a counter. This object is a singleton, so you'll see the same counter value across all the browsers.
+
+To expose a method of a Java class to JavaScript proxy, annotate the method with `@JavaScriptMethod`. For security reasons, only public methods on public classes annotated with this annotation are invokable from browsers:
+
+### Foo
+
+```java
+import org.kohsuke.stapler.bind.JavaScriptMethod;
+
+public class Foo {
+    private int i;
+
+    @JavaScriptMethod
+    public int increment(int n) {
+        return i += n;
+    }
+}
+```
+
+Then from Jelly scripts, use `st:bind` tag to export a Java object into a proxy. The "value" attribute evaluates to a server-side Java object to be exported, and the tag produces a JavaScript expression that creates a proxy. In the example below, we are pretending that the JEXL expression evaluates to some instance of Foo.
+
+### sample
+
+```xml
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
+  ...
+
+  <st:bind var="a" value="${it}"/>
+
+  <div id="msg" />
+  <st:adjunct includes="io.jenkins.plugins.<your-plugin>.<your-path>"/>
+  ...
+</j:jelly>
+```
+
+Below, you can find the sample for the adjunct to include. More information about adjuncts can be found on the security page.
+
+### sample-adjunct
+
+```javascript
+a.increment(1, function (t) {
+  document.getElementById("msg").innerHTML = t.responseObject();
+});
+```
+
+## Invoking method
+
+As you can see above, one can invoke methods on the proxy created by the `st:bind` tag. The JavaScript method takes the arguments that the Java method takes, then it can optionally take a function as an additional parameter, which is used as a callback method when the return value is available. The callback method receives an Ajax.Response object.
+
+If the Java method returns an object value (such as `int, String, Collection, Object[], JSONObject`, etc.), you can use the `responseObject()` method to evaluate the response into a JavaScript object and use it. If the Java method renders more complex HTTP response (for example by writing directly to `StaplerResponse2` or returning an `HttpResponse`), JavaScript can use other `Ajax.Response` methods to access the full HTTP response.
+
+The method call uses `XmlHttpRequest` underneath, and it gets eventually routed to the corresponding method call on the exact instance that was exported.
+
+## Parameters of the server Java method.
+
+The Java method can define arbitrary number of parameters for JavaScript. Each parameter is converted from JSON to Java via `StaplerRequest2.bindJSON`, so aside from primitive Java data types and typeless `JSONObject` / `JSONArray`, you can use Stapler databinding to accept typed structured data.
+
+After defining the parameters from JavaScript, you can additionally define parameters that are injectable by Stapler, such as `StaplerRequest2` or `StaplerResponse2`.
+
+## Exporting null
+
+If the value attribute of a `st:bind` tag evaluates to `null`, then the corresponding JavaScript proxy will be `null`.
+
+
+---
+
+# Layouts
+
+> Predefined layout structures and patterns to organize page content.
+
+**Category:** Patterns
+
+## Two column
+
+Two column layouts are for 'hub' style pages, pages that have child pages for the user to navigate to.
+
+Examples of such pages include 'Dashboard', 'Design Library' and 'Plugin Manager'.
+
+### Dos and Don'ts
+
+| Do | Don't |
+|---|---|
+| Include a title on your sidebar that best encapsulates its child pages. | Don't include hierarchical navigation in your sidebar, such as "Back to Dashboard" or "Up". |
+| Ensure all child pages share the same sidebar for consistency. | Don't include actions or external pages in your sidebar, these belong in the top app bar. |
+| Buttons should only relate to/manipulate their parent column. |  |
+| One (and only one) sidebar item should be in its selected state at a time. |  |
+
+## Usage
+
+The 'two-column' layout is default, so you don't need to do anything to use it.
+
+### twoColumn
+
+```xml
+<l:layout title="Heading">
+  <l:side-panel>
+    <l:app-bar title="Heading" />
+
+    <l:tasks>
+      <l:task title="Root" href="..." icon="symbol-jenkins" />
+      <l:task title="Second page" href="..." icon="symbol-edit" />
+      <l:task title="Third page" href="..." icon="symbol-details" badge="${it.badge}" />
+    </l:tasks>
+  </l:side-panel>
+
+  <l:main-panel>
+    <l:app-bar title="Subheading">
+      <button class="jenkins-button">
+        <l:icon src="symbol-add" />
+      </button>
+    </l:app-bar>
+
+    <p class="jenkins-leading-paragraph">This is some content</p>
+  </l:main-panel>
+</l:layout>
+```
+
+The example above is all you need to set up a two-column page, it's complete with headings, sidebar items and content.
+
+## Badges
+
+You can include badges (instances of `jenkins.management.badge`) in your sidebar to highlight important information. You should only use a badge if the information is useful to the user, for example:
+
+- Updates count on the 'Plugins' page
+- Passing/failed tests count
+- Unread notifications
+
+## One column
+
+One column layouts are for pages that don't need navigation; they're ideal for standalone pages that don't have child navigation.
+
+### Dos and Don'ts
+
+| Do | Don't |
+|---|---|
+| Use the "one-column" layout if your page doesn't need a sidebar. | Avoid sprawling content, use tabs if your page is lengthy and can be separated into clearly labelled sections. |
+
+## Usage
+
+Set the type attribute to 'one-column' to use this layout:
+
+### oneColumn
+
+```xml
+<l:layout title="Heading" type="one-column">
+  <l:main-panel>
+    <l:app-bar title="Heading">
+      <button class="jenkins-button">
+        <l:icon src="symbol-add" />
+      </button>
+    </l:app-bar>
+
+    <p class="jenkins-leading-paragraph">This is some content</p>
+  </l:main-panel>
+</l:layout>
+```
+
+## Fullscreen
+
+Fullscreen layouts hide the Jenkins user interface, providing a blank canvas for your page. Such layouts aren't intended for the average page and should only be used if your page needs it.
+
+An example of such a page is Build Monitor View
+
+[Build Monitor View](https://plugins.jenkins.io/build-monitor-plugin/)
+
+## Usage
+
+Set the type attribute to 'full-screen' to use this layout:
+
+### fullscreen
+
+```xml
+<l:layout title="Heading" type="full-screen">
+  <l:main-panel>
+    <l:app-bar title="Heading">
+      <button class="jenkins-button">
+        <l:icon src="symbol-add" />
+      </button>
+    </l:app-bar>
+
+    <p class="jenkins-leading-paragraph">This is some content</p>
+  </l:main-panel>
+</l:layout>
+```
+
+
+---
+
+# Links
+
+> Creates navigational connections to internal or external destinations.
+
+**Category:** Patterns
+
+Jenkins consists of a large and complex graph of domain objects (`ModelObject`), where each node in the graph is a web page and edges are hyperlinks. To help users navigate quickly on this graph, Jenkins provides a mechanism to attach context menus to model objects, which can be used to hop multiple edges without going through individual hyperlinks.
+
+## Defining context menu
+
+To define a context menu on `ModelObject`, implement `ModelObjectWithContextMenu`.
+
+### Links
+
+```java
+package io.jenkins.plugins.designlibrary;
+
+import hudson.Extension;
+import jenkins.model.ModelObjectWithChildren;
+import jenkins.model.ModelObjectWithContextMenu;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
+
+/**
+ * @author Kohsuke Kawaguchi
+ */
+@Extension
+public class Links extends UISample implements ModelObjectWithContextMenu, ModelObjectWithChildren {
+  @Override
+  public String getIconFileName() {
+    return "symbol-at-outline plugin-ionicons-api";
+  }
+
+  /**
+   * This method is called via AJAX to obtain the context menu for this model object.
+   */
+  public ContextMenu doContextMenu(StaplerRequest2 request, StaplerResponse2 response) throws Exception {
+    if (false) {
+      /*
+        this implementation is sufficient for most ModelObjects. It uses sidepanel.jelly to
+        generate the context menu
+      */
+      return new ContextMenu().from(this,request,response);
+    } else {
+      /*
+       otherwise you can also programatically create them.
+       see the javadoc for various convenience methods to add items
+       */
+      return new ContextMenu()
+              .add(new MenuItem().withUrl("https://www.jenkins.io/")
+                      .withDisplayName("Jenkins project")
+                      .withIconClass("symbol-jenkins plugin-ionicons-api"))
+              .add(new MenuItem().withUrl("https://plugins.jenkins.io/")
+                      .withDisplayName("Plugin Documentation")
+                      .withIconClass("symbol-extension-puzzle-outline plugin-ionicons-api"));
+    }
+  }
+
+  public ContextMenu doChildrenContextMenu(StaplerRequest2 request, StaplerResponse2 response) throws Exception {
+    /* You implement this method in much the same way you do doContextMenu */
+    return new ContextMenu()
+            .add("https://yahoo.com/","Yahoo")
+            .add("https://google.com/","Google")
+            .add("https://microsoft.com/","Microsoft");
+  }
+
+  @Extension
+  public static final class DescriptorImpl extends UISampleDescriptor {
+  }
+}
+```
+
+## Breadcrumb integration
+
+Implementing `ModelObjectWithContextMenu` is sufficient for the core to show the context menu for your model object in the breadcrumb. Hover your mouse over the breadcrumb of this page to see context menu associated with this sample. In addition, implementing `ModelObjectWithChildren` enables you to show children of your model object in the breadcrumb when you click the ‘>’ icon that separates breadcrumb items.
+
+## Model hyperlink
+
+By adding CSS class "model-link" to the <a> tags pointing to model objects with context menu, you can enable the context menu support to that hyperlink. For example:
+
+Unless the hyperlink appears inline, it is often better to pre-allocate a space for the context menu anchor that appears when the mouse hovers over. To do this, also add the "inside" CSS element. For example:
+
+
+---
+
+# Localization
+
+> Ensures texts can be displayed in the user's language.
+
+**Category:** Patterns
+
+## Localize text in Jelly
+
+Use ${%Text} to create texts that can be localized. Create a properties files for content longer than a few words.
+
+### localize
+
+```xml
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+  ${%longtext}
+  ${%hello('World')}
+</j:jelly>
+```
+
+### localize
+
+```properties
+longtext=A longer text that should not appear inline in the Jelly file.
+hello=Hello {0}
+```
+
+### localize_de
+
+```properties
+longtext=Ein längerer Text, der nicht inline in der Jelly-Datei erscheinen soll.
+hello=Hallo {0}
+```
+
+## Localize text in Java
+
+Create a file Messages.properties in the package folder. After compilation, the class Messages has corresponding methods for the texts.
+
+### Localize
+
+```java
+public class Localize {
+    public String getMessage() {
+        return Messages.Localize_message();
+    }
+
+    public String getGreet() {
+        return Messages.Localize_greet("World");
+    }
+}
+```
+
+### Messages
+
+```properties
+Localize.message=How to localize text in Java
+Localize.greet=Hello {0}
+```
+
+### Messages_de
+
+```properties
+Localize.message=So lokalisieren Sie Texte in Java
+Localize.greet=Hallo {0}
+```
+
+## Localize text in JavaScript via Jelly
+
+Attach the localizations in attributes of template HTML elements via Jelly which can then be retrieved via the document.
+
+### localize-js
+
+```xml
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+  <template
+    id="plugin-i18n"
+    data-longtext="${%longtext}"
+    data-hello="${%hello}"
+  />
+</j:jelly>
+```
+
+### localize-jelly
+
+```javascript
+const i18n = document.getElementById("plugin-i18n");
+
+const longText = i18n.dataset.longtext;
+const hello = i18n.dataset.hello;
+
+console.log(longText);
+console.log(hello.replace("{0}", "World!"));
+```
+
+## Localize text in JavaScript via HTTP
+
+Load them over HTTP via `$JENKINS_URL/i18n/resourceBundle?baseName=package.path.to.property.file` which retrieves the property file in the users' locale. This returns a JSON object with the localized texts.
+
+### localize-http
+
+```javascript
+const response = await fetch(
+  `${JENKINS_URL}/i18n/resourceBundle?baseName=io.jenkins.plugins.designlibrary.localize`,
+);
+const json = await response.json();
+const i18n = json.data;
+
+const longText = i18n.longtext;
+const hello = i18n.hello;
+
+console.log(longText);
+console.log(hello.replace("{0}", "World!"));
+```
+
+A detailed explanation on how to localize text in Java and Jelly files can be found in the developer guide Internationalization and Localization.
+
+
+---
+
+# Spacing
+
+> Defines consistent padding, margins, and gaps between elements.
+
+**Category:** Patterns
+
+Jenkins features a range of spacing helper classes to enable you to set the margin and padding for your element.
+
+This is done through the `jenkins-!-margin-*` and `jenkins-!-padding-*` classes. The `*` is the spacing modifier, it ranges from `0` for no spacing to `6` for maximum spacing.
+
+You can use position modifiers if you only want to impact one side, for example, `jenkins-!-padding-left-3`.
+
+
+---
+
+# Stylesheets
+
+> Provides reusable stylesheet principles and standards for maintaining consistency.
+
+**Category:** Patterns
+
+## Naming
+
+Classnames should follow Block Element Modifier (BEM) methodology and be prefixed.
+
+[Block Element Modifier (BEM) methodology](https://getbem.com)
+
+**Block**: Standalone entity that is meaningful on its own. e.g. `header`, `container`, `menu`, `checkbox`, `input`
+
+**Element**: A part of a block that has no standalone meaning and is semantically tied to its block. e.g. `__item`, `__checkbox-caption`, `__header`
+
+**Modifier**: A flag on a block or element. Use them to change appearance or behavior. e.g. `--disabled`, `--selected`, `--large`
+
+An example classname following this strategy could be .jenkins-cards__item--large or .jenkins-button--disabled.
+
+Not every class falls neatly into BEM, for example a class that does not belong to a particular component - such as a spacing or color class. For those classes we use the `-!-` convention to indicate that the classes can be used on any component.
+
+Examples include: `.jenkins-!-padding-6`, `.jenkins-!-margin-6` and `.jenkins-!-destructive-color`.
+
+## Prefixes
+
+Classes should be prefixed in a way that is unique to your service or plugin. We use prefixes due to the extensible nature of Jenkins, without prefixing we couldn't be certain a plugin class wouldn't interfere with a Jenkins class. We also use prefixing to prevent clashes with other libraries, such as Bootstrap.
+
+Jenkins uses the prefixes `jenkins-` and `app-` to namespace CSS classes, these prefixes should not be used in your plugins. Due to legacy reasons, some classes in use in Jenkins aren't namespaced however they are okay to use in your plugin.
+
+Classes prefixed with `jenkins-` indicate that they can be used in your plugin with confidence that they will only receive minimal changes.
+
+Classes prefixed with `app-` indicate that they should not be used in your plugin as these classes are internal to Jenkins and may change at any time.
+
+A simple way to come up with a prefix for your plugin is to abbreviate your plugin name, e.g. Jenkins Design Library becomes `jdl-`.
+
+
+---
+
+# Validation
+
+> Ensures user inputs meet specified criteria or rules before submission.
+
+**Category:** Patterns
+
+### sample
+
+```xml
+<f:entry title="${%State name}" field="name">
+  <f:textbox />
+</f:entry>
+```
+
+### Sample
+
+```java
+@Extension
+public static class DescriptorImpl extends Descriptor<State> {
+    public FormValidation doCheckName(
+            @QueryParameter String value,
+            @RelativePath("capital") @QueryParameter String name
+    ) {
+        /*
+        @RelativePath("capital") @QueryParameter
+         ... is short for
+        @RelativePath("capital") @QueryParameter("name")
+         ... and thus can be thought of "capital/name"
+
+        so this matches the current city name entered as the capital of this state
+        */
+        if (name == null) {
+            return FormValidation.ok();
+        }
+
+        return FormValidation.ok("Are you sure " + name + " is a capital of " + value + "?");
+    }
+}
+```
+
+Form field validation can access values of the nearby input controls, which is useful for performing complex context-sensitive form validation. The same technique can be also used for auto-completion, populating combobox/listbox, and so on. The example above is a bit contrived, but all the input elements are named "name" (for city name and state name), and we use @RelativePath so that the validation of the state name refers to the capital name, and the validation of the city name refers to the state name.
+
+To implement this you need to provide a `doCheckXXX` method, where XXX is the name of your field. This should return a `FormValidation` object.
+
+There is also the possibility to use client side CSS validation inside Jelly, with the help of `clazz=`. Existing validations are `required`, `number` and `positive-number`. They can also be combined, e.g. `clazz="required number"` to validate a mandatory integer field.
+
+### sample-clazz
+
+```xml
+<f:entry title="${%Non-negative integer}" field="name">
+  <f:number min="0" clazz="number"/>
+</f:entry>
+```
+
+
+---
+

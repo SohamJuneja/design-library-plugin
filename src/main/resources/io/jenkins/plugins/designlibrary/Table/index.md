@@ -1,0 +1,78 @@
+# Table
+
+> Displays structured data in rows and columns, with support for sorting and badges.
+
+**Category:** Components
+
+### index
+
+```xml
+<t:setIconSize/>
+<table class="jenkins-table sortable ${iconSize == '16x16' ? 'jenkins-table--small' : iconSize == '24x24' ? 'jenkins-table--medium' : ''}">
+<thead>
+  <th>
+    Name
+  </th>
+  <th class="jenkins-table__cell--tight">S</th>
+  <th>
+    Status
+  </th>
+  <th>
+    Reason
+  </th>
+</thead>
+<tbody>
+  <tr>
+    <td>
+      <a href="#" class="jenkins-table__link">Link 1</a>
+    </td>
+    <td class="jenkins-table__cell--tight jenkins-table__icon">
+      <div class="jenkins-table__cell__button-wrapper">
+        <l:icon src="symbol-status-blue"/>
+      </div>
+    </td>
+    <td>
+      Success
+      <a href="#" class="jenkins-table__link jenkins-table__badge model-link">#7</a>
+    </td>
+    <td>
+      No Errors
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="#" class="jenkins-table__link">Link 2</a>
+    </td>
+    <td class="jenkins-table__cell--tight jenkins-table__icon">
+      <div class="jenkins-table__cell__button-wrapper">
+        <l:icon src="symbol-status-red"/>
+      </div>
+    </td>
+    <td>
+      Failure
+    </td>
+    <td>
+      Can't compile
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="#" class="jenkins-table__link">Link 3</a>
+    </td>
+    <td class="jenkins-table__cell--tight jenkins-table__icon">
+      <div class="jenkins-table__cell__button-wrapper">
+        <l:icon src="symbol-status-yellow"/>
+      </div>
+    </td>
+    <td>
+      Unstable
+    </td>
+    <td>
+      Test Failed
+    </td>
+  </tr>
+</tbody>
+</table>
+<t:iconSize/>
+```
+
