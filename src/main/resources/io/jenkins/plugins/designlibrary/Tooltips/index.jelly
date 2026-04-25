@@ -33,8 +33,7 @@
         </s:preview>
         <s:code file="symbol-tooltip.jelly" />
       </s:group>
-      <p class="jdl-important-point">${%warning}</p>
+      <s:important-point>${%warning}</s:important-point>
     </s:section>
   </s:layout>
 </j:jelly>
-
