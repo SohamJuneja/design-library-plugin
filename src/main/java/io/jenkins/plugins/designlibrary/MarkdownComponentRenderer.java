@@ -18,7 +18,7 @@ public final class MarkdownComponentRenderer {
         appendBlock(markdown, title == null || title.isBlank() ? null : "## " + normalizeInline(title));
         appendBlock(markdown, description);
         appendBlock(markdown, normalizeBlock(body));
-        return markdown.toString();
+        return block(markdown.toString());
     }
 
     public String group(String body) {
@@ -39,7 +39,7 @@ public final class MarkdownComponentRenderer {
         StringBuilder markdown = new StringBuilder();
         appendBlock(markdown, title == null || title.isBlank() ? null : "### " + normalizeInline(title));
         appendBlock(markdown, normalizeBlock(body));
-        return markdown.toString();
+        return block(markdown.toString());
     }
 
     public String paragraph(String body) {
@@ -94,6 +94,7 @@ public final class MarkdownComponentRenderer {
     private String normalizeBlock(String text) {
         String normalized = normalizeNewlines(text);
         normalized = normalized.replaceAll("(?m)^[ \\t]+$", "");
+        normalized = normalized.replaceAll("(?m)^[ \\t]+(?=(?:#{1,6}\\s|```|> |- |\\d+\\. ))", "");
         normalized = normalized.replaceFirst("^(?:\\n)+", "");
         return normalized.replaceFirst("(?:\\n)+$", "");
     }
