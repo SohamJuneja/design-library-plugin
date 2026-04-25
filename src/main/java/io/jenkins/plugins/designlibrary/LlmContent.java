@@ -143,19 +143,7 @@ class LlmContent {
                         Matcher dosMatcher = DOS_DONTS_PATTERN.matcher(sectionMatcher.group(2));
                         if (dosMatcher.find()) {
                             List<String[]> pairs = extractDosDontsFromBlock(dosMatcher.group(1), props);
-                            if (!pairs.isEmpty()) {
-                                sb.append("### Dos and Don'ts\n\n");
-                                sb.append("| Do | Don't |\n");
-                                sb.append("|---|---|\n");
-                                for (String[] pair : pairs) {
-                                    sb.append("| ")
-                                            .append(pair[0])
-                                            .append(" | ")
-                                            .append(pair.length > 1 ? pair[1] : "")
-                                            .append(" |\n");
-                                }
-                                sb.append('\n');
-                            }
+                            appendDosDontsMarkdown(sb, pairs);
                         }
                     }
                 }
@@ -367,21 +355,7 @@ class LlmContent {
                 sb.append("```\n\n");
             } else if (ContentItem.DOS_DONTS.equals(item.type)) {
                 List<String[]> pairs = extractDosDontsFromBlock(item.content, props);
-                if (!pairs.isEmpty()) {
-                    sb.append("### Dos and Don'ts\n\n");
-                    sb.append("| Do | Don't |\n");
-                    sb.append("|---|---|\n");
-                    for (String[] pair : pairs) {
-                        String doText = pair[0];
-                        String dontText = pair.length > 1 ? pair[1] : "";
-                        sb.append("| ")
-                                .append(doText)
-                                .append(" | ")
-                                .append(dontText)
-                                .append(" |\n");
-                    }
-                    sb.append('\n');
-                }
+                appendDosDontsMarkdown(sb, pairs);
             } else if (ContentItem.LINK.equals(item.type)) {
                 String linkText = resolveI18nText(item.extra, props);
                 if (!linkText.isBlank()) {
@@ -492,6 +466,39 @@ class LlmContent {
             }
         }
         return pairs;
+    }
+
+    private static void appendDosDontsMarkdown(StringBuilder sb, List<String[]> pairs) {
+        List<String> dos = new ArrayList<>();
+        List<String> donts = new ArrayList<>();
+        for (String[] pair : pairs) {
+            if (pair.length > 0 && !pair[0].isBlank()) {
+                dos.add(pair[0]);
+            }
+            if (pair.length > 1 && !pair[1].isBlank()) {
+                donts.add(pair[1]);
+            }
+        }
+
+        if (dos.isEmpty() && donts.isEmpty()) {
+            return;
+        }
+
+        sb.append("### Dos and Don'ts\n\n");
+        appendDosDontsList(sb, "Do", dos);
+        appendDosDontsList(sb, "Don't", donts);
+    }
+
+    private static void appendDosDontsList(StringBuilder sb, String label, List<String> items) {
+        if (items.isEmpty()) {
+            return;
+        }
+
+        sb.append("**").append(label).append("**\n");
+        for (String item : items) {
+            sb.append("- ").append(item).append('\n');
+        }
+        sb.append('\n');
     }
 
     private static String resolveI18nText(String text, Properties props) {

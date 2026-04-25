@@ -1,9 +1,21 @@
 package io.jenkins.plugins.designlibrary;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- * Renders the markdown-only representation of the Design Library sample components.
+ * Renders shared Design Library sample components for markdown output.
  */
 public final class MarkdownComponentRenderer {
+
+    private static final Pattern DOS_DONTS_ROW_PATTERN =
+            Pattern.compile("<tr\\b[^>]*>(.*?)</tr>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private static final Pattern DOS_DONTS_CELL_PATTERN =
+            Pattern.compile("<t[dh]\\b[^>]*>(.*?)</t[dh]>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>", Pattern.DOTALL);
+    private static final Pattern NUMERIC_ENTITY_PATTERN = Pattern.compile("&#(x?)([0-9a-fA-F]+);");
 
     public String layout(String displayName, String description, String category, String since, String body) {
         StringBuilder markdown = new StringBuilder();
@@ -57,6 +69,23 @@ public final class MarkdownComponentRenderer {
         return normalizedBody.isEmpty() ? "" : "- " + normalizedBody + "\n";
     }
 
+    public String dosDonts(String title, String doLabel, String dontLabel, String body) {
+        DosDontsContent content = dosDontsContent(body);
+        if (content.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder markdown = new StringBuilder();
+        appendBlock(markdown, title == null || title.isBlank() ? null : "### " + normalizeInline(title));
+        appendBlock(markdown, markdownListBlock(doLabel, content.getDos()));
+        appendBlock(markdown, markdownListBlock(dontLabel, content.getDonts()));
+        return block(markdown.toString());
+    }
+
+    public DosDontsContent dosDontsContent(String body) {
+        return parseDosDonts(body);
+    }
+
     private String quote(String text) {
         String normalized = normalizeInline(text);
         return normalized.isEmpty() ? "" : "> " + normalized;
@@ -108,6 +137,23 @@ public final class MarkdownComponentRenderer {
         return normalized.trim();
     }
 
+    private String markdownListBlock(String label, List<String> items) {
+        if (items.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder markdown = new StringBuilder();
+        markdown.append("**").append(normalizeInline(label)).append("**\n");
+        for (String item : items) {
+            String normalizedItem = normalizeInline(stripHtml(item));
+            if (normalizedItem.isEmpty()) {
+                continue;
+            }
+            markdown.append("- ").append(normalizedItem).append('\n');
+        }
+        return markdown.toString().stripTrailing();
+    }
+
     private String normalizeBlock(String text) {
         String normalized = normalizeNewlines(text);
         normalized = normalized.replaceAll("(?m)^[ \\t]+$", "");
@@ -116,10 +162,77 @@ public final class MarkdownComponentRenderer {
         return normalized.replaceFirst("(?:\\n)+$", "");
     }
 
+    private DosDontsContent parseDosDonts(String body) {
+        DosDontsContent content = new DosDontsContent();
+        Matcher rowMatcher = DOS_DONTS_ROW_PATTERN.matcher(normalizeNewlines(body));
+        while (rowMatcher.find()) {
+            Matcher cellMatcher = DOS_DONTS_CELL_PATTERN.matcher(rowMatcher.group(1));
+            List<String> cells = new ArrayList<>();
+            while (cellMatcher.find()) {
+                String cell = cellMatcher.group(1).trim();
+                if (!cell.isEmpty()) {
+                    cells.add(cell);
+                }
+            }
+            if (!cells.isEmpty()) {
+                content.dos.add(cells.get(0));
+            }
+            if (cells.size() > 1) {
+                content.donts.add(cells.get(1));
+            }
+        }
+        return content;
+    }
+
+    private String stripHtml(String text) {
+        String normalized = normalizeNewlines(text);
+        normalized = normalized.replaceAll("(?i)<br\\s*/?>", " ");
+        normalized = HTML_TAG_PATTERN.matcher(normalized).replaceAll(" ");
+        normalized = decodeNumericEntities(normalized);
+        normalized = normalized.replace("&nbsp;", " ")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&amp;", "&")
+                .replace("&quot;", "\"")
+                .replace("&apos;", "'");
+        normalized = normalized.replaceAll("\\s+", " ");
+        return normalized.trim();
+    }
+
+    private String decodeNumericEntities(String text) {
+        Matcher matcher = NUMERIC_ENTITY_PATTERN.matcher(text);
+        StringBuffer decoded = new StringBuffer();
+        while (matcher.find()) {
+            int codePoint = matcher.group(1).isEmpty()
+                    ? Integer.parseInt(matcher.group(2))
+                    : Integer.parseInt(matcher.group(2), 16);
+            matcher.appendReplacement(decoded, Matcher.quoteReplacement(new String(Character.toChars(codePoint))));
+        }
+        matcher.appendTail(decoded);
+        return decoded.toString();
+    }
+
     private String normalizeNewlines(String text) {
         if (text == null) {
             return "";
         }
         return text.replace("\r\n", "\n").replace('\r', '\n');
+    }
+
+    public static final class DosDontsContent {
+        private final List<String> dos = new ArrayList<>();
+        private final List<String> donts = new ArrayList<>();
+
+        public List<String> getDos() {
+            return dos;
+        }
+
+        public List<String> getDonts() {
+            return donts;
+        }
+
+        public boolean isEmpty() {
+            return dos.isEmpty() && donts.isEmpty();
+        }
     }
 }

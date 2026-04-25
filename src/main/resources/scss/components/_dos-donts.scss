@@ -2,87 +2,104 @@
 @use "../abstracts/symbols";
 
 .jdl-dos-donts {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--jdl-spacing) * 0.5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: calc(var(--jdl-spacing) * 0.75);
+  margin-top: calc(var(--jdl-spacing) * 0.75);
 
-  thead,
-  tbody {
-    display: contents;
-  }
+  &__column {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--jdl-spacing) * 0.65);
+    padding: calc(var(--jdl-spacing) * 0.8);
+    border: var(--jenkins-border--subtle);
+    border-radius: 1rem;
+    background: var(--background);
+    box-shadow: 0 1rem 2rem -1.75rem rgba(black, 0.35);
 
-  svg {
-    width: 1rem;
-    height: 1rem;
-    translate: 0 3px;
+    &--do {
+      --jdl-dos-donts-accent: var(--success-color, var(--green));
+    }
 
-    * {
-      stroke-width: 55px !important;
+    &--dont {
+      --jdl-dos-donts-accent: var(--error-color, var(--red));
     }
   }
 
-  tr {
+  &__heading {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    text-box: cap alphabetic;
+    color: var(--jdl-dos-donts-accent);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--jdl-spacing) * 0.7);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    @include mixins.base-text;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: calc(var(--jdl-spacing) * 0.5);
+    grid-template-columns: auto 1fr;
+    gap: 0.875rem;
+    align-items: start;
+    margin: 0;
   }
 
-  thead {
-    th {
-      font-weight: 500;
-      font-size: 1.125rem;
-      text-align: left;
-      text-box: cap alphabetic;
-      margin-bottom: 0.3125rem;
+  &__marker {
+    position: relative;
+    width: 2rem;
+    height: 2rem;
+    border: var(--jenkins-border--subtle);
+    border-radius: 100%;
+    background: var(--jdl-dos-donts-accent);
+    flex: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: var(--background);
+      mask-repeat: no-repeat;
+      mask-position: center;
+      mask-size: 55%;
     }
   }
 
-  tbody {
-    td {
-      @include mixins.base-text;
-      display: block;
-      position: relative;
-      padding-left: calc(2rem + 1.5ch);
+  &__column--do &__marker::after {
+    mask-image: symbols.$check;
+  }
 
-      &::before,
-      &::after {
-        content: "";
-        position: absolute;
-        display: inline-block;
-        width: 2rem;
-        height: 2rem;
-        top: -4px;
-        left: 0;
-        border-radius: 100%;
-        border: var(--jenkins-border--subtle);
-      }
+  &__column--dont &__marker::after {
+    mask-image: symbols.$cross;
+    mask-size: 60%;
+  }
 
-      &::after {
-        background: var(--background);
-        mask-repeat: no-repeat;
-        mask-position: center;
-      }
+  &__content {
+    min-width: 0;
+    overflow-wrap: anywhere;
 
-      &:first-of-type {
-        &::before {
-          background: var(--success-color, var(--green));
-        }
+    > :first-child {
+      margin-top: 0;
+    }
 
-        &::after {
-          mask-image: symbols.$check;
-          mask-size: 55%;
-        }
-      }
+    > :last-child {
+      margin-bottom: 0;
+    }
 
-      &:not(:first-of-type) {
-        &::before {
-          background: var(--error-color, var(--red));
-        }
+    svg {
+      width: 1rem;
+      height: 1rem;
+      translate: 0 3px;
 
-        &::after {
-          mask-image: symbols.$cross;
-          mask-size: 60%;
-        }
+      * {
+        stroke-width: 55px !important;
       }
     }
   }
