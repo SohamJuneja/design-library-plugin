@@ -86,6 +86,29 @@ public final class MarkdownComponentRenderer {
         return parseDosDonts(body);
     }
 
+    public String colorsSemanticTable(List<Colors.Semantic> semantics) {
+        List<String[]> rows = new ArrayList<>();
+        for (Colors.Semantic semantic : semantics) {
+            rows.add(new String[] {
+                semantic.getName(),
+                semantic.getDescription(),
+                "`jenkins-!-" + semantic.getVariable() + "`",
+                "`var(--" + semantic.getVariable() + ")`"
+            });
+        }
+        return markdownTable(new String[] {"Name", "Description", "CSS Class", "CSS Variable"}, rows);
+    }
+
+    public String colorsPaletteTable(List<Colors.Color> colors) {
+        List<String[]> rows = new ArrayList<>();
+        for (Colors.Color color : colors) {
+            rows.add(new String[] {
+                color.getName(), "`jenkins-!-" + color.getVariable() + "`", "`var(--" + color.getClassName() + ")`"
+            });
+        }
+        return markdownTable(new String[] {"Name", "CSS Class", "CSS Variable"}, rows);
+    }
+
     private String quote(String text) {
         String normalized = normalizeInline(text);
         return normalized.isEmpty() ? "" : "> " + normalized;
@@ -154,12 +177,39 @@ public final class MarkdownComponentRenderer {
         return markdown.toString().stripTrailing();
     }
 
+    private String markdownTable(String[] headers, List<String[]> rows) {
+        StringBuilder markdown = new StringBuilder();
+        markdown.append("| ");
+        markdown.append(String.join(" | ", headers));
+        markdown.append(" |\n|");
+        for (int i = 0; i < headers.length; i++) {
+            markdown.append("---|");
+        }
+        markdown.append('\n');
+        for (String[] row : rows) {
+            markdown.append("| ");
+            for (int i = 0; i < headers.length; i++) {
+                if (i > 0) {
+                    markdown.append(" | ");
+                }
+                String cell = i < row.length ? row[i] : "";
+                markdown.append(escapeMarkdownTableCell(cell));
+            }
+            markdown.append(" |\n");
+        }
+        return markdown.toString().stripTrailing();
+    }
+
     private String normalizeBlock(String text) {
         String normalized = normalizeNewlines(text);
         normalized = normalized.replaceAll("(?m)^[ \\t]+$", "");
         normalized = normalized.replaceAll("(?m)^[ \\t]+(?=(?:#{1,6}\\s|```|> |- |\\d+\\. ))", "");
         normalized = normalized.replaceFirst("^(?:\\n)+", "");
         return normalized.replaceFirst("(?:\\n)+$", "");
+    }
+
+    private String escapeMarkdownTableCell(String text) {
+        return normalizeInline(text).replace("|", "\\|");
     }
 
     private DosDontsContent parseDosDonts(String body) {
