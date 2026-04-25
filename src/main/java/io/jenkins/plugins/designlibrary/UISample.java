@@ -25,6 +25,7 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
  * @author Kohsuke Kawaguchi
  */
 public abstract class UISample implements ExtensionPoint, Action, Describable<UISample> {
+    private static final MarkdownComponentRenderer MARKDOWN_RENDERER = new MarkdownComponentRenderer();
 
     /**
      * Gets the URL-friendly name of the UI sample.
@@ -76,6 +77,11 @@ public abstract class UISample implements ExtensionPoint, Action, Describable<UI
 
     public UISampleDescriptor getDescriptor() {
         return (UISampleDescriptor) Jenkins.get().getDescriptorOrDie(getClass());
+    }
+
+    @Restricted(NoExternalUse.class)
+    public MarkdownComponentRenderer getMarkdownRenderer() {
+        return MARKDOWN_RENDERER;
     }
 
     /**

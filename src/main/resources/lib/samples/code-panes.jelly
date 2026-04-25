@@ -1,6 +1,14 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:d="jelly:define">
-  <div class="jdl-tab-panes">
-    <d:invokeBody />
-  </div>
+  <j:choose>
+    <j:when test="${true}">
+      <j:set var="body"><d:invokeBody /></j:set>
+      <j:out value="${it.markdownRenderer.codePanes(body)}" />
+    </j:when>
+    <j:otherwise>
+      <div class="jdl-tab-panes">
+        <d:invokeBody />
+      </div>
+    </j:otherwise>
+  </j:choose>
 </j:jelly>
