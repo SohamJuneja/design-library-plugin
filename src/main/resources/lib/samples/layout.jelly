@@ -32,7 +32,7 @@ THE SOFTWARE.
     <j:when test="${true}">
       <j:set var="body"><d:invokeBody /></j:set>
       <l:view contentType="text/markdown">
-        <j:out value="${it.markdownRenderer.layout(it.displayName, it.description, body)}" />
+        <j:out value="${it.markdownRenderer.layout(it.displayName, it.description, it.category.displayName, it.since, body)}" />
       </l:view>
     </j:when>
     <j:otherwise>

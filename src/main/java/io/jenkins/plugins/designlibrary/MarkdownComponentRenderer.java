@@ -5,10 +5,11 @@ package io.jenkins.plugins.designlibrary;
  */
 public final class MarkdownComponentRenderer {
 
-    public String layout(String displayName, String description, String body) {
+    public String layout(String displayName, String description, String category, String since, String body) {
         StringBuilder markdown = new StringBuilder();
         appendBlock(markdown, displayName == null || displayName.isBlank() ? null : "# " + displayName);
         appendBlock(markdown, quote(description));
+        appendBlock(markdown, metadata(category, since));
         appendBlock(markdown, normalizeBlock(body));
         return markdown.toString();
     }
@@ -59,6 +60,22 @@ public final class MarkdownComponentRenderer {
     private String quote(String text) {
         String normalized = normalizeInline(text);
         return normalized.isEmpty() ? "" : "> " + normalized;
+    }
+
+    private String metadata(String category, String since) {
+        StringBuilder metadata = new StringBuilder();
+        String normalizedCategory = normalizeInline(category);
+        String normalizedSince = normalizeInline(since);
+        if (!normalizedCategory.isEmpty()) {
+            metadata.append("**Category:** ").append(normalizedCategory);
+        }
+        if (!normalizedSince.isEmpty()) {
+            if (!metadata.isEmpty()) {
+                metadata.append('\n');
+            }
+            metadata.append("**Since:** ").append(normalizedSince);
+        }
+        return metadata.toString();
     }
 
     private String block(String text) {
