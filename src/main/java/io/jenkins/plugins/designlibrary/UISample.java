@@ -2,9 +2,14 @@ package io.jenkins.plugins.designlibrary;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.ExtensionPoint;
+import hudson.PluginWrapper;
 import hudson.model.Action;
 import hudson.model.Describable;
 import io.jenkins.plugins.prism.PrismConfiguration;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -71,6 +76,29 @@ public abstract class UISample implements ExtensionPoint, Action, Describable<UI
 
     public UISampleDescriptor getDescriptor() {
         return (UISampleDescriptor) Jenkins.get().getDescriptorOrDie(getClass());
+    }
+
+    /**
+     * Loads a file from this plugin's web resources, for example {@code AppBar/bottomAppBar.jelly}.
+     * Returns the file contents as UTF-8 text and throws if the path is invalid or unreadable.
+     */
+    @Restricted(NoExternalUse.class)
+    public String getCode(String path) throws IOException {
+        if (path == null || path.isBlank()) {
+            throw new IllegalArgumentException("Path must not be blank");
+        }
+
+        String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+        PluginWrapper wrapper = Jenkins.get().getPluginManager().whichPlugin(getClass());
+        if (wrapper == null) {
+            throw new IllegalStateException(
+                    "Could not resolve plugin wrapper for " + getClass().getName());
+        }
+
+        URL resource = new URL(wrapper.baseResourceURL, normalizedPath);
+        try (InputStream is = resource.openStream()) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     @Restricted(NoExternalUse.class)
