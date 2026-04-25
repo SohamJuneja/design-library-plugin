@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import jenkins.model.Jenkins;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
+import org.kohsuke.stapler.Stapler;
+import org.kohsuke.stapler.StaplerRequest2;
 
 /**
  * @author Kohsuke Kawaguchi
@@ -82,6 +84,12 @@ public abstract class UISample implements ExtensionPoint, Action, Describable<UI
     @Restricted(NoExternalUse.class)
     public MarkdownComponentRenderer getMarkdownRenderer() {
         return MARKDOWN_RENDERER;
+    }
+
+    @Restricted(NoExternalUse.class)
+    public boolean isMarkdownView() {
+        StaplerRequest2 request = Stapler.getCurrentRequest2();
+        return request != null && request.getRequestURI().endsWith(".mdx/");
     }
 
     /**

@@ -50,9 +50,10 @@ public class Home implements RootAction {
      * Dynamically retrieves the appropriate UI sample based on the current URL
      */
     public UISample getDynamic(String name) {
+        String normalizedName = name != null && name.endsWith(".mdx") ? name.substring(0, name.length() - 4) : name;
         for (UISample ui : getAll()) {
             String urlName = ui.getUrlName();
-            if (urlName != null && urlName.equals(name)) {
+            if (urlName != null && urlName.equals(normalizedName)) {
                 return ui;
             }
         }

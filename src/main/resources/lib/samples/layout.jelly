@@ -29,7 +29,7 @@ THE SOFTWARE.
   </st:documentation>
 
   <j:choose>
-    <j:when test="${true}">
+    <j:when test="${it.markdownView}">
       <j:set var="body"><d:invokeBody /></j:set>
       <l:view contentType="text/markdown">
         <j:out value="${it.markdownRenderer.layout(it.displayName, it.description, it.category.displayName, it.since, body)}" />

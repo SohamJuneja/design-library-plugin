@@ -24,7 +24,7 @@
   <j:set var="code" value="${attrs.code ?: it.getCode(it.class.simpleName + '/' + attrs.file)}" />
 
   <j:choose>
-    <j:when test="${true}">
+    <j:when test="${it.markdownView}">
       <j:out value="${it.markdownRenderer.code(language, code)}" />
     </j:when>
     <j:otherwise>

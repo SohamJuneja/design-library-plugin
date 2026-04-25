@@ -67,7 +67,7 @@ THE SOFTWARE.
 
     <s:section title="${%Semantic}">
       <j:choose>
-        <j:when test="${true}">
+        <j:when test="${it.markdownView}">
           <j:out value="${it.markdownRenderer.colorsSemanticTable(it.semantics)}" />
         </j:when>
         <j:otherwise>
@@ -82,7 +82,7 @@ THE SOFTWARE.
 
     <s:section title="${%Palette}">
       <j:choose>
-        <j:when test="${true}">
+        <j:when test="${it.markdownView}">
           <j:out value="${it.markdownRenderer.colorsPaletteTable(it.colors)}" />
         </j:when>
         <j:otherwise>

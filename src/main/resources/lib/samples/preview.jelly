@@ -7,7 +7,7 @@
   </st:documentation>
 
   <j:choose>
-    <j:when test="${true}" />
+    <j:when test="${it.markdownView}" />
     <j:otherwise>
       <div class="jdl-component-sample ${attrs.classes} ${attrs.fullWidth ? ' jdl-component-sample--full-width' : ''} ${attrs.noBottomPadding ? ' jdl-component-sample--no-bottom-padding' : ''}">
         <d:invokeBody />
