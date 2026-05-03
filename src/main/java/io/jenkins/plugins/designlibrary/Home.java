@@ -62,6 +62,42 @@ public class Home implements RootAction {
         return null;
     }
 
+    public void doDynamic(StaplerRequest2 req, StaplerResponse2 rsp) throws IOException {
+        String restOfPath = req.getRestOfPath();
+        if (restOfPath.startsWith("/")) {
+            restOfPath = restOfPath.substring(1);
+        }
+
+        String content = resolveLlmContent(restOfPath, req);
+        if (content != null) {
+            rsp.setContentType("text/plain;charset=UTF-8");
+            try (PrintWriter w = rsp.getWriter()) {
+                w.write(content);
+            }
+            return;
+        }
+
+        rsp.sendError(404);
+    }
+
+    private String resolveLlmContent(String name, StaplerRequest2 req) {
+        String baseUrl = req.getContextPath() + "/" + getUrlName() + "/";
+
+        if ("llms.txt".equals(name)) {
+            return LlmContent.generateIndex(baseUrl);
+        }
+
+
+        PluginWrapper plugin = Jenkins.get().getPluginManager().getPlugin("design-library");
+        URL resourceBase = plugin != null ? plugin.baseResourceURL : null;
+
+        if ("llms-all.txt".equals(name)) {
+            return LlmContent.generateAll(resourceBase);
+        }
+
+        return null;
+    }
+
     /**
      * Gets the plugin version number for the plugin for the home page
      * @return the plugin version
