@@ -89,7 +89,7 @@ public abstract class UISample implements ExtensionPoint, Action, Describable<UI
     @Restricted(NoExternalUse.class)
     public boolean isMarkdownView() {
         StaplerRequest2 request = Stapler.getCurrentRequest2();
-        return request != null && request.getRequestURI().endsWith(".mdx/");
+        return request != null && request.getRequestURI().endsWith(".md/");
     }
 
     /**
