@@ -28,6 +28,7 @@ import org.kohsuke.stapler.StaplerRequest2;
  */
 public abstract class UISample implements ExtensionPoint, Action, Describable<UISample> {
     private static final MarkdownComponentRenderer MARKDOWN_RENDERER = new MarkdownComponentRenderer();
+    static final String MARKDOWN_VIEW_ATTRIBUTE = UISample.class.getName() + ".markdownView";
 
     /**
      * Gets the URL-friendly name of the UI sample.
@@ -89,7 +90,17 @@ public abstract class UISample implements ExtensionPoint, Action, Describable<UI
     @Restricted(NoExternalUse.class)
     public boolean isMarkdownView() {
         StaplerRequest2 request = Stapler.getCurrentRequest2();
-        return request != null && request.getRequestURI().endsWith(".md/");
+        if (request == null) {
+            return false;
+        }
+
+        Object forcedMarkdownView = request.getAttribute(MARKDOWN_VIEW_ATTRIBUTE);
+        if (Boolean.TRUE.equals(forcedMarkdownView)) {
+            return true;
+        }
+
+        String requestUri = request.getRequestURI();
+        return requestUri.endsWith(".md") || requestUri.endsWith(".md/");
     }
 
     /**
@@ -104,6 +115,9 @@ public abstract class UISample implements ExtensionPoint, Action, Describable<UI
 
         String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
         PluginWrapper wrapper = Jenkins.get().getPluginManager().whichPlugin(getClass());
+        if (wrapper == null) {
+            wrapper = Jenkins.get().getPluginManager().getPlugin("design-library");
+        }
         if (wrapper == null) {
             throw new IllegalStateException(
                     "Could not resolve plugin wrapper for " + getClass().getName());

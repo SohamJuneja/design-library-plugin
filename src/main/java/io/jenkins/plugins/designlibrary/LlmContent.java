@@ -1,12 +1,12 @@
 package io.jenkins.plugins.designlibrary;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Map;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
+import org.kohsuke.stapler.ResponseImpl;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest2;
-import org.kohsuke.stapler.StaplerResponse2;
 
 @Restricted(NoExternalUse.class)
 class LlmContent {
@@ -24,8 +24,7 @@ class LlmContent {
     static String generateIndex(String baseUrl) {
         StringBuilder sb = new StringBuilder();
         sb.append("# Jenkins Design Library\n\n");
-        sb.append("> A reference library of UI components and patterns ");
-        sb.append("for building Jenkins plugin interfaces.\n\n");
+        sb.append("> A reference library of UI components and patterns for building Jenkins plugin interfaces.\n\n");
         sb.append("For complete documentation of all components with code examples, see [llms-all.txt](");
         sb.append(baseUrl).append("llms-all.txt).\n\n");
 
@@ -45,8 +44,7 @@ class LlmContent {
     static String generateAll() {
         StringBuilder sb = new StringBuilder();
         sb.append("# Jenkins Design Library\n\n");
-        sb.append("> A reference library of UI components and patterns ");
-        sb.append("for building Jenkins plugin interfaces.\n\n");
+        sb.append("> A reference library of UI components and patterns for building Jenkins plugin interfaces.\n\n");
 
         for (Map.Entry<Category, List<UISample>> entry : UISample.getGrouped().entrySet()) {
             sb.append("## ").append(entry.getKey().getDisplayName()).append("\n\n");
@@ -61,43 +59,41 @@ class LlmContent {
 
     static String generateComponentMarkdown(UISample sample) {
         StaplerRequest2 currentRequest = Stapler.getCurrentRequest2();
-        StaplerResponse2 currentResponse = Stapler.getCurrentResponse2();
+        HttpServletResponse currentResponse = Stapler.getCurrentResponse2();
         if (currentRequest == null || currentResponse == null) {
             throw new IllegalStateException("No active Stapler request/response available for markdown rendering");
         }
 
-        String requestUri = currentRequest.getRequestURI();
-        int lastSlash = requestUri.lastIndexOf('/');
-        String markdownUri =
-                (lastSlash >= 0 ? requestUri.substring(0, lastSlash + 1) : "/") + sample.getUrlName() + ".md/";
+        RequestDispatcher view;
+        try {
+            view = currentRequest.getView(sample, "index.jelly");
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to resolve index.jelly for " + sample.getDisplayName(), e);
+        }
+        if (view == null) {
+            throw new IllegalStateException("Could not resolve index.jelly for " + sample.getDisplayName());
+        }
 
-        CapturingHttpServletResponse response = new CapturingHttpServletResponse(currentResponse);
-        HttpServletRequest request = new MarkdownViewHttpServletRequest(currentRequest, markdownUri);
+        CapturingResponse response = new CapturingResponse(currentRequest, currentResponse);
+        Object previousMarkdownView = currentRequest.getAttribute(UISample.MARKDOWN_VIEW_ATTRIBUTE);
+        currentRequest.setAttribute(UISample.MARKDOWN_VIEW_ATTRIBUTE, true);
 
         try {
-            currentRequest.getStapler().invoke(request, response, sample, "");
-        } catch (Exception e) {
+            view.forward(currentRequest, response);
+        } catch (ServletException | IOException e) {
             throw new IllegalStateException("Failed to render markdown for " + sample.getDisplayName(), e);
+        } finally {
+            if (previousMarkdownView != null) {
+                currentRequest.setAttribute(UISample.MARKDOWN_VIEW_ATTRIBUTE, previousMarkdownView);
+            } else {
+                currentRequest.removeAttribute(UISample.MARKDOWN_VIEW_ATTRIBUTE);
+            }
         }
 
         return response.getBody();
     }
 
-    private static final class MarkdownViewHttpServletRequest extends HttpServletRequestWrapper {
-        private final String requestUri;
-
-        MarkdownViewHttpServletRequest(HttpServletRequest request, String requestUri) {
-            super(request);
-            this.requestUri = requestUri;
-        }
-
-        @Override
-        public String getRequestURI() {
-            return requestUri;
-        }
-    }
-
-    private static final class CapturingHttpServletResponse extends HttpServletResponseWrapper {
+    private static final class CapturingResponse extends ResponseImpl {
         private final ByteArrayOutputStream outputBuffer = new ByteArrayOutputStream();
         private final PrintWriter writer =
                 new PrintWriter(new OutputStreamWriter(outputBuffer, StandardCharsets.UTF_8), true);
@@ -105,8 +101,8 @@ class LlmContent {
         private String contentType = "text/markdown;charset=UTF-8";
         private String characterEncoding = StandardCharsets.UTF_8.name();
 
-        CapturingHttpServletResponse(HttpServletResponse response) {
-            super(response);
+        CapturingResponse(StaplerRequest2 request, HttpServletResponse response) {
+            super(request.getStapler(), response);
         }
 
         @Override

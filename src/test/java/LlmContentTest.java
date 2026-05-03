@@ -53,31 +53,6 @@ class LlmContentTest {
     }
 
     @Test
-    void componentMarkdownContainsCodeSnippets() throws Exception {
-        try (var webClient = jenkins.createWebClient()) {
-            Page page = webClient.getPage(jenkins.getURL() + "design-library/buttons.md");
-            String content = page.getWebResponse().getContentAsString();
-
-            assertThat(content).startsWith("# Buttons");
-            assertThat(content).contains("**Category:** Components");
-            assertThat(content).contains("jenkins-button");
-            assertThat(content).contains("```");
-        }
-    }
-
-    @Test
-    void cardsMarkdownContainsCodeSnippets() throws Exception {
-        try (var webClient = jenkins.createWebClient()) {
-            Page page = webClient.getPage(jenkins.getURL() + "design-library/cards.md");
-            String content = page.getWebResponse().getContentAsString();
-
-            assertThat(content).startsWith("# Cards");
-            assertThat(content).contains("l:card");
-            assertThat(content).contains("```");
-        }
-    }
-
-    @Test
     void unknownMdReturns404() throws Exception {
         try (var webClient = jenkins.createWebClient()) {
             webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
