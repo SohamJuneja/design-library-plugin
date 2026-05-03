@@ -239,7 +239,8 @@ public final class MarkdownComponentRenderer {
         normalized = normalized.replaceAll("(?i)<br\\s*/?>", " ");
         normalized = HTML_TAG_PATTERN.matcher(normalized).replaceAll(" ");
         normalized = decodeNumericEntities(normalized);
-        normalized = normalized.replace("&nbsp;", " ")
+        normalized = normalized
+                .replace("&nbsp;", " ")
                 .replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&amp;", "&")

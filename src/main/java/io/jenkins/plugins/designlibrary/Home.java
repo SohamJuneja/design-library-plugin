@@ -5,7 +5,6 @@ import hudson.PluginWrapper;
 import hudson.model.RootAction;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -87,12 +86,8 @@ public class Home implements RootAction {
             return LlmContent.generateIndex(baseUrl);
         }
 
-
-        PluginWrapper plugin = Jenkins.get().getPluginManager().getPlugin("design-library");
-        URL resourceBase = plugin != null ? plugin.baseResourceURL : null;
-
         if ("llms-all.txt".equals(name)) {
-            return LlmContent.generateAll(resourceBase);
+            return LlmContent.generateAll();
         }
 
         return null;
