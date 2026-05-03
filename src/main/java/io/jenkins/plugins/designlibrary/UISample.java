@@ -8,6 +8,7 @@ import hudson.model.Describable;
 import io.jenkins.plugins.prism.PrismConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -108,22 +109,20 @@ public abstract class UISample implements ExtensionPoint, Action, Describable<UI
      * Returns the file contents as UTF-8 text and throws if the path is invalid or unreadable.
      */
     @Restricted(NoExternalUse.class)
-    public String getCode(String path) throws IOException {
+    public String getCode(String path) throws IOException, URISyntaxException {
         if (path == null || path.isBlank()) {
             throw new IllegalArgumentException("Path must not be blank");
         }
 
         String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
-        PluginWrapper wrapper = Jenkins.get().getPluginManager().whichPlugin(getClass());
+        PluginWrapper wrapper = Jenkins.get().getPluginManager().getPlugin("design-library");
+
         if (wrapper == null) {
-            wrapper = Jenkins.get().getPluginManager().getPlugin("design-library");
-        }
-        if (wrapper == null) {
-            throw new IllegalStateException(
-                    "Could not resolve plugin wrapper for " + getClass().getName());
+            throw new IllegalStateException("Could not resolve plugin wrapper for Design Library");
         }
 
-        URL resource = new URL(wrapper.baseResourceURL, normalizedPath);
+        URL resource = wrapper.baseResourceURL.toURI().resolve(normalizedPath).toURL();
+
         try (InputStream is = resource.openStream()) {
             return new String(is.readAllBytes(), StandardCharsets.UTF_8);
         }
